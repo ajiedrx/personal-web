@@ -97,9 +97,14 @@ const primaryLabel = t(locale, 'nav.primaryLabel');
     inset-block-start: 0;
     z-index: var(--z-sticky);
     inline-size: 100%;
-    background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+    /* Solid page-background fill (no translucency / backdrop-blur). A blurred
+       translucent header composites on its own GPU layer and re-samples the
+       content behind it, so it fades out of step with the page during a theme
+       switch (a seam at its edge). A plain opaque surface of the same
+       --color-bg composites like normal content and crossfades in perfect
+       lockstep with it — seamless. */
+    background: var(--color-bg);
     border-block-end: var(--border-width) solid transparent;
-    backdrop-filter: saturate(1.4) blur(8px);
     transition:
       transform var(--duration-base) var(--ease-standard),
       border-color var(--duration-base) var(--ease-standard),

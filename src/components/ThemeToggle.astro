@@ -206,14 +206,12 @@ const initialLabel = labels.toLight; // dark is active by default → offer ligh
   let switchTimer = 0;
 
   /**
-   * Toggle the theme with a simple crossfade (Req 7.2, 7.3).
+   * Toggle the theme with a simple whole-page color crossfade (Req 7.2, 7.3).
    *
-   * Setting the `data-theme-switching` flag enables a brief color/background
-   * transition across the page (see motion.css); flipping `data-theme` then
-   * lets every token-driven color ease to its new value. The flag is removed
-   * once the fade completes so normal interactions keep their own faster
-   * transitions. This is robust at any scroll position and needs no overlay or
-   * geometry. Under reduced motion the switch is instant with no fade (Req 7.9).
+   * Setting `data-theme-switching` enables a brief color transition across the
+   * page (see motion.css); flipping `data-theme` then eases every token-driven
+   * color to its new value. Robust at any scroll position, no overlay/snapshot.
+   * Under reduced motion the switch is instant (Req 7.9).
    */
   function toggleTheme(): void {
     const next: Theme = currentTheme() === 'dark' ? 'light' : 'dark';
@@ -224,8 +222,6 @@ const initialLabel = labels.toLight; // dark is active by default → offer ligh
       return;
     }
 
-    // Enable the crossfade, then flip the theme so the transition animates from
-    // the current colors to the new ones; clear the flag once it's done.
     HTML.setAttribute('data-theme-switching', '');
     applyTheme(next);
     window.clearTimeout(switchTimer);
