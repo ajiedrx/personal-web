@@ -1,0 +1,5 @@
+# robots.txt placeholder — sitemap URL updated at build via @astrojs/sitemap
+User-agent: *
+Allow: /
+
+Sitemap: https://ajiedrx.github.io/personal-web/sitemap-index.xml
