@@ -92,16 +92,33 @@
  * properties transition to the new theme's values across the whole page at
  * once. Simple, robust at any scroll position, no snapshot/overlay.
  */
+/*
+ * Crossfade — while the `data-theme-switching` flag is set, color-bearing
+ * properties transition to the new theme's values across the whole page at
+ * once. Elements that inherit their color (like the hero name) fade via the
+ * body's color transition; elements are given `color`/`background-color`
+ * transitions here so any element with its own themed color fades too. Simple,
+ * robust at any scroll position.
+ */
+/* Animate the registered text-color tokens on <html> (they inherit), so
+   own-colored text (e.g. the tagline) fades in lockstep with inherited text. */
+html[data-theme-switching] {
+  transition:
+    --color-text var(--motion-duration-theme, 320ms) var(--motion-ease, ease),
+    --color-text-muted var(--motion-duration-theme, 320ms) var(--motion-ease, ease),
+    --color-text-subtle var(--motion-duration-theme, 320ms) var(--motion-ease, ease) !important;
+}
+
 html[data-theme-switching] *,
 html[data-theme-switching] *::before,
 html[data-theme-switching] *::after {
   transition:
-    color var(--motion-duration-theme, 300ms) var(--motion-ease, ease),
-    background-color var(--motion-duration-theme, 300ms) var(--motion-ease, ease),
-    border-color var(--motion-duration-theme, 300ms) var(--motion-ease, ease),
-    fill var(--motion-duration-theme, 300ms) var(--motion-ease, ease),
-    stroke var(--motion-duration-theme, 300ms) var(--motion-ease, ease),
-    box-shadow var(--motion-duration-theme, 300ms) var(--motion-ease, ease) !important;
+    color var(--motion-duration-theme, 320ms) var(--motion-ease, ease),
+    background-color var(--motion-duration-theme, 320ms) var(--motion-ease, ease),
+    border-color var(--motion-duration-theme, 320ms) var(--motion-ease, ease),
+    fill var(--motion-duration-theme, 320ms) var(--motion-ease, ease),
+    stroke var(--motion-duration-theme, 320ms) var(--motion-ease, ease),
+    box-shadow var(--motion-duration-theme, 320ms) var(--motion-ease, ease) !important;
 }
 
 /*

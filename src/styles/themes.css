@@ -28,6 +28,35 @@
  */
 
 /* ------------------------------------------------------------------------
+ * Animatable text-color tokens (theme crossfade).
+ *
+ * Elements that set their own `color: var(--color-text-*)` (e.g. the hero
+ * tagline) do NOT transition when only the underlying custom property changes —
+ * a plain custom property isn't interpolable, so the color snaps (the tagline
+ * "out of sync"). Registering these text tokens as typed `<color>` properties
+ * makes them interpolable, so the crossfade animates them smoothly, matching
+ * the primary text (which fades via inheritance). Only text tokens are
+ * registered, and the theme blocks below assign them literal colors so the
+ * registered `<color>` value always computes (a `var(--palette-*)` value would
+ * fail to parse as `<color>` and fall back to initial-value).
+ * ---------------------------------------------------------------------- */
+@property --color-text {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f7f7f5;
+}
+@property --color-text-muted {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #b8b8bc;
+}
+@property --color-text-subtle {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #9a9aa0;
+}
+
+/* ------------------------------------------------------------------------
  * Dark theme — default before first paint (Req 7.8)
  * Applied when data-theme="dark" AND as the :root fallback.
  * ---------------------------------------------------------------------- */
@@ -41,10 +70,11 @@
   --color-surface-raised: var(--palette-gray-900);
   --color-surface-inset: var(--palette-gray-800);
 
-  /* Text (all AA on --color-bg) */
-  --color-text: var(--palette-white); /* primary text */
-  --color-text-muted: var(--palette-gray-300); /* secondary text */
-  --color-text-subtle: var(--palette-gray-400); /* tertiary / meta */
+  /* Text (all AA on --color-bg). Literal hex (not var(--palette-*)) so the
+     registered `<color>` tokens compute and animate during the crossfade. */
+  --color-text: #f7f7f5; /* primary text (= --palette-white) */
+  --color-text-muted: #b8b8bc; /* secondary text (= --palette-gray-300) */
+  --color-text-subtle: #9a9aa0; /* tertiary / meta (= --palette-gray-400) */
   --color-text-on-accent: var(--palette-black); /* text over orange/blue fills */
 
   /* Borders & dividers */
@@ -82,10 +112,11 @@
   --color-surface-raised: var(--palette-pure-white);
   --color-surface-inset: var(--palette-gray-050);
 
-  /* Text (all AA on --color-bg) */
-  --color-text: var(--palette-black); /* primary text */
-  --color-text-muted: var(--palette-gray-600); /* secondary text */
-  --color-text-subtle: var(--palette-gray-500); /* tertiary / meta */
+  /* Text (all AA on --color-bg). Literal hex (not var(--palette-*)) so the
+     registered `<color>` tokens compute and animate during the crossfade. */
+  --color-text: #0b0b0d; /* primary text (= --palette-black) */
+  --color-text-muted: #55555a; /* secondary text (= --palette-gray-600) */
+  --color-text-subtle: #6f6f75; /* tertiary / meta (= --palette-gray-500) */
   /* Near-black over the orange accent fill: 6.31:1 (AA). Off-white on orange
      is only ~2.9:1, so the light theme intentionally uses dark on-accent text. */
   --color-text-on-accent: var(--palette-black); /* text over orange/blue fills */

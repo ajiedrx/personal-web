@@ -234,20 +234,20 @@ const initialLabel = labels.toLight; // dark is active by default → offer ligh
     const clear = () => {
       HTML.removeAttribute('data-theme-switching');
       window.clearTimeout(switchTimer);
-      document.removeEventListener('transitionend', onEnd, true);
+      document.body.removeEventListener('transitionend', onEnd);
     };
     const onEnd = (e: TransitionEvent) => {
-      // React only to a page color transition (not, e.g., a hover on some
-      // element that happens to fire during the switch).
-      if (
-        e.propertyName === 'background-color' ||
-        e.propertyName === 'color'
-      ) {
+      // Wait for the <body>'s own background-color transition to finish before
+      // dropping the flag (ignore events bubbling up from descendants). This
+      // guarantees the fade fully completed, so no still-animating color snaps
+      // to its final value when the flag lifts.
+      if (e.target === document.body && e.propertyName === 'background-color') {
         clear();
       }
     };
-    document.addEventListener('transitionend', onEnd, true);
-    switchTimer = window.setTimeout(clear, readThemeDuration() + 200);
+    document.body.addEventListener('transitionend', onEnd);
+    // Safety net well beyond the duration in case the event never fires.
+    switchTimer = window.setTimeout(clear, readThemeDuration() + 250);
 
     persistTheme(next);
   }

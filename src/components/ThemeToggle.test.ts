@@ -166,14 +166,14 @@ describe('reduced-motion suppresses the theme ripple/reveal (Req 7.9)', () => {
   it('defines the theme crossfade transition outside reduced motion (baseline)', () => {
     // The theme switch is a color crossfade: while `data-theme-switching` is set
     // on <html>, color-bearing properties transition to the new theme's values
-    // (see motion.css + ThemeToggle). Assert that switch transition exists and
-    // eases color/background-color over the theme-duration token.
+    // (see motion.css + ThemeToggle). Assert the element-scoped switch rule
+    // exists and eases color/background-color over the theme-duration token.
     const switchRule = motionCss.match(
-      /html\[data-theme-switching\][^{]*\{([^}]*)\}/,
+      /html\[data-theme-switching\]\s*\*[^{]*\{([^}]*)\}/,
     );
-    expect(switchRule, 'expected an html[data-theme-switching] transition rule').not.toBeNull();
+    expect(switchRule, 'expected an html[data-theme-switching] * transition rule').not.toBeNull();
     expect(switchRule![1]).toMatch(/transition:/);
-    expect(switchRule![1]).toMatch(/color/);
+    expect(switchRule![1]).toMatch(/\bcolor\b/);
     expect(switchRule![1]).toMatch(/background-color/);
     expect(switchRule![1]).toMatch(/--motion-duration-theme/);
     // The old ripple overlay/clone machinery must be fully removed.
