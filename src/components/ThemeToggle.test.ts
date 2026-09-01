@@ -163,28 +163,33 @@ describe('reduced-motion suppresses the theme ripple/reveal (Req 7.9)', () => {
     throw new Error('unterminated @media block in motion.css');
   }
 
-  it('defines the circular clip-path reveal overlay outside reduced motion (baseline)', () => {
-    // Sanity: the reveal overlay exists so the reduced-motion guard is
-    // meaningful. The reveal shows the re-themed page content through a growing
-    // `clip-path` circle (see motion.css + ThemeToggle), so the overlay is a
-    // clipped circular window, not a flat colored disc.
-    expect(motionCss).toMatch(/\.theme-ripple-overlay/);
-    const overlayBase = motionCss.match(/\.theme-ripple-overlay\s*\{([^}]*)\}/);
-    expect(overlayBase, 'expected a base .theme-ripple-overlay rule').not.toBeNull();
-    // A circular clip window driven by the ripple origin custom properties.
-    expect(overlayBase![1]).toMatch(/clip-path:\s*circle\(/);
-    expect(overlayBase![1]).toMatch(/overflow:\s*hidden/);
-    // The re-themed clone layer that fills the circular window must exist.
-    expect(motionCss).toMatch(/\.theme-ripple-clone/);
+  it('defines the theme crossfade transition outside reduced motion (baseline)', () => {
+    // The theme switch is a color crossfade: while `data-theme-switching` is set
+    // on <html>, color-bearing properties transition to the new theme's values
+    // (see motion.css + ThemeToggle). Assert that switch transition exists and
+    // eases color/background-color over the theme-duration token.
+    const switchRule = motionCss.match(
+      /html\[data-theme-switching\][^{]*\{([^}]*)\}/,
+    );
+    expect(switchRule, 'expected an html[data-theme-switching] transition rule').not.toBeNull();
+    expect(switchRule![1]).toMatch(/transition:/);
+    expect(switchRule![1]).toMatch(/color/);
+    expect(switchRule![1]).toMatch(/background-color/);
+    expect(switchRule![1]).toMatch(/--motion-duration-theme/);
+    // The old ripple overlay/clone machinery must be fully removed.
+    expect(motionCss).not.toMatch(/theme-ripple-overlay/);
+    expect(motionCss).not.toMatch(/theme-ripple-clone/);
+    expect(motionCss).not.toMatch(/@keyframes\s+ripple-scale/);
   });
 
-  it('disables the circular overlay reveal under reduced motion', () => {
+  it('collapses the crossfade transition under reduced motion (Req 7.9)', () => {
     const guard = reducedMotionBlock(motionCss);
-    // The reveal overlay must be hidden and its animation cleared (Req 7.9).
-    const overlayRule = guard.match(/\.theme-ripple-overlay\s*\{([^}]*)\}/);
-    expect(overlayRule, 'expected a .theme-ripple-overlay rule inside the guard').not.toBeNull();
-    expect(overlayRule![1]).toMatch(/display:\s*none/);
-    expect(overlayRule![1]).toMatch(/animation:\s*none/);
+    // Under reduced motion the switch transition must be effectively instant.
+    const switchRule = guard.match(
+      /html\[data-theme-switching\][^{]*\{([^}]*)\}/,
+    );
+    expect(switchRule, 'expected a reduced-motion switch override in the guard').not.toBeNull();
+    expect(switchRule![1]).toMatch(/transition-duration:\s*0\.01ms\s*!important/);
   });
 
   it('collapses all animation/transition durations under reduced motion', () => {

@@ -1,5 +1,5 @@
 /*
- * motion.css — reveal / ripple keyframes and transitions.
+ * motion.css — reveal keyframes and theme-transition styles.
  *
  * Consumes motion tokens declared in tokens.css / themes.css (see task 2.1),
  * referenced as var(--token-name) with resilient fallbacks.
@@ -11,9 +11,8 @@
  * Requirements:
  *   17.2 — under reduced motion, sections display in final state (no reveal).
  *   18.7 — under reduced motion, suppress all non-essential animation/transition.
- *   7.3  — ripple expands from the theme-toggle click point (View Transitions).
- *   7.4  — clip-path circle-reveal fallback from the click point.
- *   7.9  — theme switch without ripple/reveal under reduced motion.
+ *   7.2/7.3 — theme switch is a color crossfade across the page.
+ *   7.9  — theme switch without the crossfade under reduced motion.
  */
 
 /* ---------------------------------------------------------------------------
@@ -31,20 +30,6 @@
     transform: translateY(0);
   }
 }
-
-/*
- * Theme ripple (Req 7.3, 7.4).
- *
- * A circular overlay (`.theme-ripple-overlay`, a `border-radius: 50%` element)
- * is scaled from 0 → 1 out of the click point. Because it is a real circle
- * scaled by `transform`, it (a) stays perfectly round at every frame and
- * (b) animates entirely on the GPU compositor with no per-frame repaint.
- *
- * The theme reveal shows the page content re-themed through a growing circular
- * window (a re-themed clone clipped by an animated `clip-path` circle), so the
- * content stays visible the whole time — old theme outside the circle, new
- * theme inside. See `.theme-ripple-overlay` below and the ThemeToggle island.
- */
 
 /* Subtle kinetic hero accent (Req 8.4); decorative only. */
 @keyframes kinetic-drift {
@@ -89,91 +74,29 @@
 }
 
 /* ---------------------------------------------------------------------------
- * Theme transition ripple / reveal (Req 7.2, 7.3, 7.4)
+ * Theme transition — crossfade (Req 7.2, 7.3, 7.9)
  *
- * A circular overlay painted in the new theme's background is scaled up from
- * the click point over the page (whose theme has already been swapped beneath
- * it). The overlay's size/position are set inline by the ThemeToggle island;
- * this rule owns the shape, color, and the GPU-composited scale animation.
+ * The theme switch is a simple color crossfade. When the ThemeToggle island
+ * sets `data-theme-switching` on <html> and flips `data-theme`, this rule adds
+ * a brief transition on the color-bearing properties so every token-driven
+ * color eases from the old theme to the new one across the whole page at once.
+ * The flag is removed after the fade so hovers and other interactions keep
+ * their own (faster) transitions. This is robust at any scroll position and
+ * needs no overlay, clone, or geometry.
+ *
+ * Only color properties are transitioned (not `all`) to avoid animating layout
+ * or transform and to keep the fade cheap and GPU-friendly.
  * ------------------------------------------------------------------------- */
-.theme-ripple-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-ripple, 9998);
-  pointer-events: none;
-  overflow: hidden;
-  /* Circular window revealing the re-themed page clone. The Web Animations API
-     grows this `clip-path` circle from 0 to full coverage (see ThemeToggle),
-     so the new theme is shown *through* the circle while the content beneath
-     stays put — old theme outside, new theme inside, nothing hidden. Starts
-     fully clipped so nothing flashes before the animation begins. */
-  clip-path: circle(0 at var(--ripple-cx, 50%) var(--ripple-cy, 50%));
-  /* Isolate onto its own layer so the clip composites against a static snapshot
-     instead of re-rastering the live page — keeps the reveal smooth. */
-  will-change: clip-path;
-  contain: layout paint size;
-}
-
-/* The cloned, re-themed page content inside the circular window: a still
-   snapshot (no animations, inert), aligned to the page scroll via inline
-   translateY set in JS so it overlaps the real content exactly. */
-.theme-ripple-clone {
-  position: absolute;
-  inset: 0;
-  min-block-size: 100vh;
-  /* Paint the *new* theme's page background behind the cloned content. The page
-     background is normally drawn by <body>/<html> (which aren't in the clone),
-     so without this the clone's sections are transparent and the old page shows
-     through — making only the navbar (the one element with its own background)
-     appear to change. The clone carries data-theme=new, so this resolves to the
-     incoming background color. */
-  background: var(--color-bg);
-}
-.theme-ripple-clone * {
-  animation: none !important;
-}
-/* The clone is a static snapshot, so force scroll-reveal sections to their
-   final visible state (the reveal animation is disabled above; without this a
-   section captured mid-reveal would stay at opacity 0 in the clone). */
-.theme-ripple-clone .reveal {
-  opacity: 1 !important;
-  transform: none !important;
-}
-
-/*
- * Seamless ripple (Req 7.3): while a theme switch is in flight, freeze every
- * element's own color transition (notably the sticky header, which transitions
- * background/border color). Otherwise the header animates its colors out of
- * step with the circle and shows a seam between the navbar and the content;
- * frozen, the whole page swaps as one surface behind the growing circle. The
- * `data-theme-switching` flag is set by the ThemeToggle island only for the
- * duration of the reveal, then removed.
- */
 html[data-theme-switching] *,
 html[data-theme-switching] *::before,
 html[data-theme-switching] *::after {
   transition:
-    transform var(--motion-duration-theme, 500ms) var(--motion-ease-out, cubic-bezier(0.16, 1, 0.3, 1)) !important;
-}
-
-/*
- * Note: the real sticky header keeps its `backdrop-filter` throughout the theme
- * switch. The reveal animates the *clone* overlay (which sits above the header),
- * not the live page, so the real header is never the animated surface — there's
- * no raster win from dropping its blur, and toggling the blur off/on would pop
- * the navbar sharpness at the hand-off. It stays live and stable.
- */
-
-/*
- * Freeze the decorative kinetic drift on the *real* page during the switch so
- * it can't move out from under the clone. We *pause* (not reset) it, so it holds
- * its exact current position — and the ThemeToggle island copies that same
- * position onto the clone's kinetic blocks — so the real and cloned blocks stay
- * pixel-aligned. That means no jump when the clone is removed, and (because the
- * real one only paused, never reset) no jump when it resumes either.
- */
-html[data-theme-switching] .kinetic {
-  animation-play-state: paused !important;
+    color var(--motion-duration-theme, 300ms) var(--motion-ease, ease),
+    background-color var(--motion-duration-theme, 300ms) var(--motion-ease, ease),
+    border-color var(--motion-duration-theme, 300ms) var(--motion-ease, ease),
+    fill var(--motion-duration-theme, 300ms) var(--motion-ease, ease),
+    stroke var(--motion-duration-theme, 300ms) var(--motion-ease, ease),
+    box-shadow var(--motion-duration-theme, 300ms) var(--motion-ease, ease) !important;
 }
 
 /* ---------------------------------------------------------------------------
@@ -224,11 +147,13 @@ html[data-theme-switching] .kinetic {
     animation: none;
   }
 
-  /* Theme switch without ripple/reveal (Req 7.9): the island already skips the
-     overlay under reduced motion, but hide it defensively too. */
-  .theme-ripple-overlay {
-    display: none;
-    animation: none;
+  /* Theme switch without a crossfade (Req 7.9): the island already flips
+     instantly under reduced motion, but null the switch transition too so the
+     colors never ease even if the flag is present. */
+  html[data-theme-switching] *,
+  html[data-theme-switching] *::before,
+  html[data-theme-switching] *::after {
+    transition-duration: 0.01ms !important;
   }
 
   /* Hero kinetic element renders static (Req 8.5). */
