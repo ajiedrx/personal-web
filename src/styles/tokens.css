@@ -128,10 +128,14 @@
   --z-overlay: 1000; /* mobile nav / dialogs */
 
   /* Motion timing (used by motion.css; gated by prefers-reduced-motion) */
-  --duration-fast: 150ms;
+  --duration-fast: 200ms;
   --duration-base: 250ms;
   --duration-slow: 400ms;
-  --duration-theme: 320ms; /* theme crossfade within 200–600ms budget (Req 7.2, 7.3) */
+  /* Theme crossfade. Kept equal to --duration-fast so the always-on token
+     crossfade and every component's own color/border hover transition (which
+     use --duration-fast) run at the SAME duration — they can't visibly desync
+     during a theme flip. Within the 200–600ms budget (Req 7.2, 7.3). */
+  --duration-theme: 200ms;
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 

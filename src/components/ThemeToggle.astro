@@ -182,73 +182,16 @@ const initialLabel = labels.toLight; // dark is active by default → offer ligh
     }
   }
 
-  /** True when the visitor asked for reduced motion (Req 7.9). */
-  function prefersReducedMotion(): boolean {
-    return (
-      typeof window.matchMedia === 'function' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    );
-  }
-
-  /** Crossfade duration in ms, read from the `--motion-duration-theme` token. */
-  function readThemeDuration(): number {
-    const raw = getComputedStyle(HTML)
-      .getPropertyValue('--motion-duration-theme')
-      .trim();
-    const ms = raw.endsWith('ms')
-      ? parseFloat(raw)
-      : raw.endsWith('s')
-        ? parseFloat(raw) * 1000
-        : NaN;
-    return Number.isFinite(ms) && ms > 0 ? ms : 300;
-  }
-
-  let switchTimer = 0;
-
   /**
-   * Toggle the theme with a simple whole-page color crossfade (Req 7.2, 7.3).
-   *
-   * Setting `data-theme-switching` enables a brief color transition across the
-   * page (see motion.css); flipping `data-theme` then eases every token-driven
-   * color to its new value. Robust at any scroll position, no overlay/snapshot.
-   * Under reduced motion the switch is instant (Req 7.9).
+   * Toggle the theme (Req 7.2, 7.3). Just flip `data-theme` and persist — the
+   * crossfade is a plain, always-on CSS transition on the color tokens (see
+   * motion.css), so flipping the attribute eases every color to its new value
+   * with nothing to start/stop in JS. Under reduced motion the transition is
+   * disabled in CSS, so the switch is simply instant (Req 7.9).
    */
   function toggleTheme(): void {
     const next: Theme = currentTheme() === 'dark' ? 'light' : 'dark';
-
-    if (prefersReducedMotion()) {
-      applyTheme(next);
-      persistTheme(next);
-      return;
-    }
-
-    HTML.setAttribute('data-theme-switching', '');
     applyTheme(next);
-
-    // Remove the flag only once the crossfade has actually finished. Using a
-    // fixed timeout races the transition — if the flag is dropped mid-fade, the
-    // still-animating colors snap to their final value in one frame (a flash at
-    // the end). Waiting for `transitionend` guarantees the fade completed; a
-    // generous timeout is only a safety net if the event never fires.
-    window.clearTimeout(switchTimer);
-    const clear = () => {
-      HTML.removeAttribute('data-theme-switching');
-      window.clearTimeout(switchTimer);
-      document.body.removeEventListener('transitionend', onEnd);
-    };
-    const onEnd = (e: TransitionEvent) => {
-      // Wait for the <body>'s own background-color transition to finish before
-      // dropping the flag (ignore events bubbling up from descendants). This
-      // guarantees the fade fully completed, so no still-animating color snaps
-      // to its final value when the flag lifts.
-      if (e.target === document.body && e.propertyName === 'background-color') {
-        clear();
-      }
-    };
-    document.body.addEventListener('transitionend', onEnd);
-    // Safety net well beyond the duration in case the event never fires.
-    switchTimer = window.setTimeout(clear, readThemeDuration() + 250);
-
     persistTheme(next);
   }
 

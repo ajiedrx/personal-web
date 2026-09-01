@@ -28,33 +28,31 @@
  */
 
 /* ------------------------------------------------------------------------
- * Animatable text-color tokens (theme crossfade).
+ * Animatable color tokens (theme crossfade).
  *
- * Elements that set their own `color: var(--color-text-*)` (e.g. the hero
- * tagline) do NOT transition when only the underlying custom property changes —
- * a plain custom property isn't interpolable, so the color snaps (the tagline
- * "out of sync"). Registering these text tokens as typed `<color>` properties
- * makes them interpolable, so the crossfade animates them smoothly, matching
- * the primary text (which fades via inheritance). Only text tokens are
- * registered, and the theme blocks below assign them literal colors so the
- * registered `<color>` value always computes (a `var(--palette-*)` value would
- * fail to parse as `<color>` and fall back to initial-value).
+ * A plain CSS custom property is NOT interpolable: when `color:
+ * var(--color-text-muted)` changes only because the token changed (a theme
+ * flip), the browser snaps to the new value instead of transitioning. That is
+ * why themed colors appeared to "snap" / go out of sync during the switch.
+ *
+ * Registering the themed tokens as typed `<color>` properties makes them
+ * interpolable, so the always-on transition in motion.css animates them
+ * smoothly and uniformly. A registered `<color>` cannot hold a `var(...)`
+ * value (it would fail to parse and fall back to initial-value), so the theme
+ * blocks below assign these tokens *literal* hex — identical to the palette
+ * values they replace, so contrast/AA is unchanged.
  * ---------------------------------------------------------------------- */
-@property --color-text {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: #f7f7f5;
-}
-@property --color-text-muted {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: #b8b8bc;
-}
-@property --color-text-subtle {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: #9a9aa0;
-}
+@property --color-bg { syntax: '<color>'; inherits: true; initial-value: #0b0b0d; }
+@property --color-surface { syntax: '<color>'; inherits: true; initial-value: #131316; }
+@property --color-surface-raised { syntax: '<color>'; inherits: true; initial-value: #1a1a1e; }
+@property --color-surface-inset { syntax: '<color>'; inherits: true; initial-value: #26262b; }
+@property --color-text { syntax: '<color>'; inherits: true; initial-value: #f7f7f5; }
+@property --color-text-muted { syntax: '<color>'; inherits: true; initial-value: #b8b8bc; }
+@property --color-text-subtle { syntax: '<color>'; inherits: true; initial-value: #9a9aa0; }
+@property --color-border { syntax: '<color>'; inherits: true; initial-value: #33333a; }
+@property --color-border-strong { syntax: '<color>'; inherits: true; initial-value: #55555a; }
+@property --color-accent-text { syntax: '<color>'; inherits: true; initial-value: #ff7a45; }
+@property --color-link { syntax: '<color>'; inherits: true; initial-value: #7aa5ff; }
 
 /* ------------------------------------------------------------------------
  * Dark theme — default before first paint (Req 7.8)
@@ -64,31 +62,30 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  /* Surfaces */
-  --color-bg: var(--palette-black); /* #0b0b0d */
-  --color-surface: var(--palette-gray-950); /* raised panels/cards */
-  --color-surface-raised: var(--palette-gray-900);
-  --color-surface-inset: var(--palette-gray-800);
+  /* Surfaces — literal hex so the registered `<color>` tokens animate. */
+  --color-bg: #0b0b0d; /* = --palette-black */
+  --color-surface: #131316; /* = --palette-gray-950 (raised panels/cards) */
+  --color-surface-raised: #1a1a1e; /* = --palette-gray-900 */
+  --color-surface-inset: #26262b; /* = --palette-gray-800 */
 
-  /* Text (all AA on --color-bg). Literal hex (not var(--palette-*)) so the
-     registered `<color>` tokens compute and animate during the crossfade. */
+  /* Text (all AA on --color-bg). Literal hex so the registered tokens animate. */
   --color-text: #f7f7f5; /* primary text (= --palette-white) */
   --color-text-muted: #b8b8bc; /* secondary text (= --palette-gray-300) */
   --color-text-subtle: #9a9aa0; /* tertiary / meta (= --palette-gray-400) */
   --color-text-on-accent: var(--palette-black); /* text over orange/blue fills */
 
-  /* Borders & dividers */
-  --color-border: var(--palette-gray-700);
-  --color-border-strong: var(--palette-gray-600);
+  /* Borders & dividers — literal hex so the registered tokens animate. */
+  --color-border: #33333a; /* = --palette-gray-700 */
+  --color-border-strong: #55555a; /* = --palette-gray-600 */
 
   /* Signature accent — orange */
   --color-accent: var(--palette-orange); /* UI/fill surfaces (>=3:1) */
-  --color-accent-text: var(--palette-orange-bright); /* accent-colored text (AA) */
+  --color-accent-text: #ff7a45; /* accent-colored text (AA) (= --palette-orange-bright) */
   --color-accent-hover: var(--palette-orange-bright);
 
   /* Secondary accent — blue (links/state) */
   --color-secondary: var(--palette-blue);
-  --color-link: var(--palette-blue-bright); /* link text (AA) */
+  --color-link: #7aa5ff; /* link text (AA) (= --palette-blue-bright) */
   --color-link-hover: var(--palette-pure-white);
 
   /* Focus indicator — >= 3:1 vs bg and adjacent surfaces (Req 18.4) */
@@ -106,14 +103,13 @@
 [data-theme="light"] {
   color-scheme: light;
 
-  /* Surfaces */
-  --color-bg: var(--palette-white); /* #f7f7f5 */
-  --color-surface: var(--palette-pure-white);
-  --color-surface-raised: var(--palette-pure-white);
-  --color-surface-inset: var(--palette-gray-050);
+  /* Surfaces — literal hex so the registered `<color>` tokens animate. */
+  --color-bg: #f7f7f5; /* = --palette-white */
+  --color-surface: #ffffff; /* = --palette-pure-white */
+  --color-surface-raised: #ffffff; /* = --palette-pure-white */
+  --color-surface-inset: #f0f0ee; /* = --palette-gray-050 */
 
-  /* Text (all AA on --color-bg). Literal hex (not var(--palette-*)) so the
-     registered `<color>` tokens compute and animate during the crossfade. */
+  /* Text (all AA on --color-bg). Literal hex so the registered tokens animate. */
   --color-text: #0b0b0d; /* primary text (= --palette-black) */
   --color-text-muted: #55555a; /* secondary text (= --palette-gray-600) */
   --color-text-subtle: #6f6f75; /* tertiary / meta (= --palette-gray-500) */
@@ -121,18 +117,18 @@
      is only ~2.9:1, so the light theme intentionally uses dark on-accent text. */
   --color-text-on-accent: var(--palette-black); /* text over orange/blue fills */
 
-  /* Borders & dividers */
-  --color-border: var(--palette-gray-200);
-  --color-border-strong: var(--palette-gray-400);
+  /* Borders & dividers — literal hex so the registered tokens animate. */
+  --color-border: #d6d6d8; /* = --palette-gray-200 */
+  --color-border-strong: #9a9aa0; /* = --palette-gray-400 */
 
   /* Signature accent — orange */
   --color-accent: var(--palette-orange); /* UI/fill surfaces */
-  --color-accent-text: var(--palette-orange-deep); /* accent-colored text (AA) */
+  --color-accent-text: #c43e00; /* accent-colored text (AA) (= --palette-orange-deep) */
   --color-accent-hover: var(--palette-orange-deep);
 
   /* Secondary accent — blue (links/state) */
   --color-secondary: var(--palette-blue);
-  --color-link: var(--palette-blue-deep); /* link text (AA) */
+  --color-link: #1b4fd6; /* link text (AA) (= --palette-blue-deep) */
   --color-link-hover: var(--palette-black);
 
   /* Focus indicator — >= 3:1 vs bg and adjacent surfaces (Req 18.4) */

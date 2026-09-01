@@ -76,57 +76,34 @@
 /* ---------------------------------------------------------------------------
  * Theme transition — crossfade (Req 7.2, 7.3, 7.9)
  *
- * The theme switch is a simple color crossfade. When the ThemeToggle island
- * sets `data-theme-switching` on <html> and flips `data-theme`, this rule adds
- * a brief transition on the color-bearing properties so every token-driven
- * color eases from the old theme to the new one across the whole page at once.
- * The flag is removed after the fade so hovers and other interactions keep
- * their own (faster) transitions. This is robust at any scroll position and
- * needs no overlay, clone, or geometry.
+ * Dead simple: an *always-on* transition on the color tokens. Flipping
+ * `data-theme` changes the token values, and because the registered `<color>`
+ * tokens (see @property in themes.css) are interpolable, every color that
+ * derives from them eases to its new value together — one duration, one curve,
+ * nothing to start or stop in JS. No flag, no timers, no per-switch machinery,
+ * so nothing can desync or snap at the end.
  *
- * Only color properties are transitioned (not `all`) to avoid animating layout
- * or transform and to keep the fade cheap and GPU-friendly.
+ * The tokens are transitioned on :root (they inherit to the whole tree). The
+ * `--color-bg`/surface tokens are included so the page background and cards
+ * crossfade too. Under reduced motion the transition is disabled (below), so
+ * the switch is instant.
  * ------------------------------------------------------------------------- */
-/*
- * Crossfade — while the `data-theme-switching` flag is set, color-bearing
- * properties transition to the new theme's values across the whole page at
- * once. Simple, robust at any scroll position, no snapshot/overlay.
- */
-/*
- * Crossfade — while the `data-theme-switching` flag is set, color-bearing
- * properties transition to the new theme's values across the whole page at
- * once. Elements that inherit their color (like the hero name) fade via the
- * body's color transition; elements are given `color`/`background-color`
- * transitions here so any element with its own themed color fades too. Simple,
- * robust at any scroll position.
- */
-/* Animate the registered text-color tokens on <html> (they inherit), so
-   own-colored text (e.g. the tagline) fades in lockstep with inherited text. */
-html[data-theme-switching] {
+:root {
   transition:
-    --color-text var(--motion-duration-theme, 320ms) var(--motion-ease, ease),
-    --color-text-muted var(--motion-duration-theme, 320ms) var(--motion-ease, ease),
-    --color-text-subtle var(--motion-duration-theme, 320ms) var(--motion-ease, ease) !important;
+    --color-bg var(--duration-theme, 260ms) var(--ease-standard, ease),
+    --color-surface var(--duration-theme, 260ms) var(--ease-standard, ease),
+    --color-surface-raised var(--duration-theme, 260ms) var(--ease-standard, ease),
+    --color-surface-inset var(--duration-theme, 260ms) var(--ease-standard, ease),
+    --color-text var(--duration-theme, 260ms) var(--ease-standard, ease),
+    --color-text-muted var(--duration-theme, 260ms) var(--ease-standard, ease),
+    --color-text-subtle var(--duration-theme, 260ms) var(--ease-standard, ease),
+    --color-border var(--duration-theme, 260ms) var(--ease-standard, ease),
+    --color-border-strong var(--duration-theme, 260ms) var(--ease-standard, ease),
+    --color-accent-text var(--duration-theme, 260ms) var(--ease-standard, ease),
+    --color-link var(--duration-theme, 260ms) var(--ease-standard, ease);
 }
 
-html[data-theme-switching] *,
-html[data-theme-switching] *::before,
-html[data-theme-switching] *::after {
-  transition:
-    color var(--motion-duration-theme, 320ms) var(--motion-ease, ease),
-    background-color var(--motion-duration-theme, 320ms) var(--motion-ease, ease),
-    border-color var(--motion-duration-theme, 320ms) var(--motion-ease, ease),
-    fill var(--motion-duration-theme, 320ms) var(--motion-ease, ease),
-    stroke var(--motion-duration-theme, 320ms) var(--motion-ease, ease),
-    box-shadow var(--motion-duration-theme, 320ms) var(--motion-ease, ease) !important;
-}
 
-/*
- * The sticky header is a plain opaque `var(--color-bg)` surface (no
- * backdrop-blur; see Navbar.astro), so it composites like normal content and
- * crossfades in lockstep with the page via the universal rule above — no
- * special handling needed for a seamless switch.
- */
 
 /* ---------------------------------------------------------------------------
  * Kinetic hero visual (Req 8.4)
@@ -176,17 +153,10 @@ html[data-theme-switching] *::after {
     animation: none;
   }
 
-  /* Theme switch without a crossfade (Req 7.9): the island already flips
-     instantly under reduced motion, but null both crossfade paths defensively —
-     the View Transitions blend and the CSS-flag color transition. */
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none !important;
-  }
-  html[data-theme-switching] *,
-  html[data-theme-switching] *::before,
-  html[data-theme-switching] *::after {
-    transition-duration: 0.01ms !important;
+  /* Theme switch is instant under reduced motion (Req 7.9): kill the always-on
+     color-token transition so flipping data-theme swaps colors immediately. */
+  :root {
+    transition: none !important;
   }
 
   /* Hero kinetic element renders static (Req 8.5). */

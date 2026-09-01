@@ -166,30 +166,27 @@ describe('reduced-motion suppresses the theme ripple/reveal (Req 7.9)', () => {
   it('defines the theme crossfade transition outside reduced motion (baseline)', () => {
     // The theme switch is a color crossfade: while `data-theme-switching` is set
     // on <html>, color-bearing properties transition to the new theme's values
-    // (see motion.css + ThemeToggle). Assert the element-scoped switch rule
-    // exists and eases color/background-color over the theme-duration token.
-    const switchRule = motionCss.match(
-      /html\[data-theme-switching\]\s*\*[^{]*\{([^}]*)\}/,
-    );
-    expect(switchRule, 'expected an html[data-theme-switching] * transition rule').not.toBeNull();
-    expect(switchRule![1]).toMatch(/transition:/);
-    expect(switchRule![1]).toMatch(/\bcolor\b/);
-    expect(switchRule![1]).toMatch(/background-color/);
-    expect(switchRule![1]).toMatch(/--motion-duration-theme/);
+    // The crossfade is an always-on transition on the color tokens declared on
+    // :root (see motion.css). Assert it transitions the theme tokens over the
+    // theme-duration token — flipping data-theme then eases every derived color.
+    const rootRule = motionCss.match(/:root\s*\{\s*transition:([^}]*)\}/);
+    expect(rootRule, 'expected a :root token transition rule').not.toBeNull();
+    expect(rootRule![1]).toMatch(/--color-bg/);
+    expect(rootRule![1]).toMatch(/--color-text-muted/);
+    expect(rootRule![1]).toMatch(/--duration-theme/);
     // The old ripple overlay/clone machinery must be fully removed.
     expect(motionCss).not.toMatch(/theme-ripple-overlay/);
     expect(motionCss).not.toMatch(/theme-ripple-clone/);
     expect(motionCss).not.toMatch(/@keyframes\s+ripple-scale/);
   });
 
-  it('collapses the crossfade transition under reduced motion (Req 7.9)', () => {
+  it('disables the crossfade under reduced motion (Req 7.9)', () => {
     const guard = reducedMotionBlock(motionCss);
-    // Under reduced motion the switch transition must be effectively instant.
-    const switchRule = guard.match(
-      /html\[data-theme-switching\][^{]*\{([^}]*)\}/,
-    );
-    expect(switchRule, 'expected a reduced-motion switch override in the guard').not.toBeNull();
-    expect(switchRule![1]).toMatch(/transition-duration:\s*0\.01ms\s*!important/);
+    // Under reduced motion the always-on token transition must be nulled so the
+    // theme swaps instantly.
+    const rootRule = guard.match(/:root\s*\{([^}]*)\}/);
+    expect(rootRule, 'expected a :root reduced-motion override in the guard').not.toBeNull();
+    expect(rootRule![1]).toMatch(/transition:\s*none\s*!important/);
   });
 
   it('collapses all animation/transition durations under reduced motion', () => {
