@@ -224,10 +224,30 @@ const initialLabel = labels.toLight; // dark is active by default → offer ligh
 
     HTML.setAttribute('data-theme-switching', '');
     applyTheme(next);
+
+    // Remove the flag only once the crossfade has actually finished. Using a
+    // fixed timeout races the transition — if the flag is dropped mid-fade, the
+    // still-animating colors snap to their final value in one frame (a flash at
+    // the end). Waiting for `transitionend` guarantees the fade completed; a
+    // generous timeout is only a safety net if the event never fires.
     window.clearTimeout(switchTimer);
-    switchTimer = window.setTimeout(() => {
+    const clear = () => {
       HTML.removeAttribute('data-theme-switching');
-    }, readThemeDuration() + 50);
+      window.clearTimeout(switchTimer);
+      document.removeEventListener('transitionend', onEnd, true);
+    };
+    const onEnd = (e: TransitionEvent) => {
+      // React only to a page color transition (not, e.g., a hover on some
+      // element that happens to fire during the switch).
+      if (
+        e.propertyName === 'background-color' ||
+        e.propertyName === 'color'
+      ) {
+        clear();
+      }
+    };
+    document.addEventListener('transitionend', onEnd, true);
+    switchTimer = window.setTimeout(clear, readThemeDuration() + 200);
 
     persistTheme(next);
   }

@@ -131,7 +131,14 @@
   --duration-fast: 150ms;
   --duration-base: 250ms;
   --duration-slow: 400ms;
-  --duration-theme: 500ms; /* theme ripple within 200–600ms budget (Req 7.2, 7.3) */
+  --duration-theme: 320ms; /* theme crossfade within 200–600ms budget (Req 7.2, 7.3) */
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Aliases consumed by motion.css / the ThemeToggle island for the theme
+     crossfade. Defined so the JS duration read and the CSS transition duration
+     are the exact same value (a mismatch let the switch flag drop mid-fade,
+     snapping colors to their final value — a flash at the end). */
+  --motion-duration-theme: var(--duration-theme);
+  --motion-ease: var(--ease-standard);
 }
