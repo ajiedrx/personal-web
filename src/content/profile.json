@@ -1,0 +1,18 @@
+{
+  "name": "Ajie Dibyo R.",
+  "role": "Full-Stack Mobile Engineer",
+  "location": "Surabaya, Indonesia",
+  "availability": "Open to work — full-time & collaborations",
+  "contact": {
+    "email": "hello@example.com",
+    "linkedin": "https://www.linkedin.com/in/placeholder",
+    "github": "https://github.com/ajiedrx",
+    "socials": [
+      {
+        "label": "Twitter / X",
+        "url": "https://twitter.com/placeholder",
+        "isPlaceholder": true
+      }
+    ]
+  }
+}

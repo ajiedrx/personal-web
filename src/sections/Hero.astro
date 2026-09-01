@@ -1,0 +1,231 @@
+---
+/**
+ * Hero.astro — the opening hero section (Req 8).
+ *
+ * Responsibilities:
+ *  - Display the owner name and the fixed role "Full-Stack Mobile Engineer"
+ *    (Req 8.1). The name is Content_Store data (seeded in Task 20); until the
+ *    page composition (Task 19) wires it in, it accepts an `ownerName` prop with
+ *    a sensible default so the section renders standalone.
+ *  - Display a short impact-oriented tagline from the I18n_Store via `t()`
+ *    (Req 8.2).
+ *  - Display dual call-to-action links to the Featured Projects section
+ *    (`#projects`) and the Contact section (`#contact`) (Req 8.3).
+ *  - Present a subtle kinetic visual element when motion is allowed (Req 8.4)
+ *    and render it static under reduced motion (Req 8.5). The `.kinetic` class
+ *    (see `src/styles/motion.css`) carries the drift animation and is already
+ *    disabled inside the `prefers-reduced-motion: reduce` guard there, so no
+ *    JS gate is needed. The `.reveal` class opts the section into the
+ *    scroll-reveal controller (also final-state under reduced motion).
+ *
+ * The role string is fixed by the requirement wording ("Full-Stack Mobile
+ * Engineer") and is intentionally not localized (Req 8.1). In-page anchors use
+ * plain `#hash` hrefs — they resolve relative to the current document and must
+ * not be base-prefixed (see `withBase`).
+ *
+ * _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
+ */
+import type { Locale } from '../i18n/locale';
+import { t } from '../i18n/locale';
+
+interface Props {
+  /** Active locale; drives the localized tagline and CTA labels. */
+  locale: Locale;
+  /**
+   * Owner name (Content_Store — Req 8.1). Defaults to the site owner so the
+   * section renders correctly before content seeding (Task 20) / page
+   * composition (Task 19) supply it explicitly.
+   */
+  ownerName?: string;
+}
+
+/** The fixed role displayed in the hero (Req 8.1); not localized per the spec. */
+const ROLE = 'Full-Stack Mobile Engineer';
+
+const { locale, ownerName = 'Ajie Dibyo R.' } = Astro.props;
+
+const tagline = t(locale, 'hero.tagline');
+const ctaProjectsLabel = t(locale, 'hero.ctaProjects');
+const ctaContactLabel = t(locale, 'hero.ctaContact');
+---
+
+<section id="hero" class="hero reveal" aria-labelledby="hero-heading">
+  <div class="hero__inner">
+    <div class="hero__content">
+      <!--
+        The single top-level <h1> lives here (Req 18.1): the hero heading carries
+        the owner name and role. Subsequent sections use <h2> and below.
+      -->
+      <h1 id="hero-heading" class="hero__heading">
+        <span class="hero__name">{ownerName}</span>
+        <span class="hero__role">{ROLE}</span>
+      </h1>
+
+      <p class="hero__tagline">{tagline}</p>
+
+      <div class="hero__ctas">
+        <a class="hero__cta hero__cta--primary" href="#projects">
+          {ctaProjectsLabel}
+        </a>
+        <a class="hero__cta hero__cta--secondary" href="#contact">
+          {ctaContactLabel}
+        </a>
+      </div>
+    </div>
+
+    <!--
+      Subtle kinetic visual (Req 8.4). Decorative only, so it is hidden from
+      assistive tech (aria-hidden + empty semantics). The `.kinetic` drift
+      animation is defined in motion.css and disabled under reduced motion,
+      satisfying the static-under-reduced-motion requirement (Req 8.5).
+    -->
+    <div class="hero__visual" aria-hidden="true">
+      <div class="hero__kinetic kinetic"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding-block: var(--section-padding-block);
+    padding-inline: var(--content-gutter);
+  }
+
+  .hero__inner {
+    display: grid;
+    gap: var(--space-7);
+    align-items: center;
+    max-inline-size: var(--content-max-width);
+    margin-inline: auto;
+  }
+
+  .hero__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .hero__heading {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: 0;
+  }
+
+  .hero__name {
+    font-size: var(--text-hero);
+    font-weight: var(--weight-black);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    /* A long, content-driven owner name must never force horizontal overflow
+       at narrow (~320px) viewports (Req 21.2). */
+    overflow-wrap: break-word;
+  }
+
+  .hero__role {
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-semibold);
+    line-height: var(--leading-snug);
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .hero__tagline {
+    max-inline-size: 42ch;
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-muted, var(--color-text));
+  }
+
+  .hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-block-start: var(--space-2);
+  }
+
+  .hero__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-block: var(--space-3);
+    padding-inline: var(--space-6);
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    text-decoration: none;
+    border: var(--border-width-thick) solid transparent;
+    border-radius: var(--radius-sm);
+    transition:
+      transform var(--duration-fast) var(--ease-standard),
+      background-color var(--duration-fast) var(--ease-standard),
+      color var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard);
+  }
+
+  .hero__cta--primary {
+    color: var(--palette-black);
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .hero__cta--primary:hover {
+    transform: translateY(-2px);
+    color: var(--palette-black);
+    background-color: var(--color-accent-strong, var(--color-accent));
+  }
+
+  .hero__cta--secondary {
+    color: var(--color-text);
+    background-color: transparent;
+    border-color: var(--color-border, currentColor);
+  }
+
+  .hero__cta--secondary:hover {
+    transform: translateY(-2px);
+    color: var(--color-text);
+    border-color: var(--color-accent);
+  }
+
+  /* Decorative kinetic accent block (Req 8.4). The drift animation is applied
+     via the shared `.kinetic` class in motion.css and disabled under reduced
+     motion there (Req 8.5). */
+  .hero__visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero__kinetic {
+    inline-size: min(100%, 22rem);
+    block-size: min(60vw, 22rem);
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(
+        circle at 30% 30%,
+        color-mix(in srgb, var(--color-accent) 55%, transparent),
+        transparent 60%
+      ),
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--color-secondary, var(--palette-blue)) 40%, transparent),
+        transparent 70%
+      );
+    border: var(--border-width) solid var(--color-border, transparent);
+  }
+
+  /* Two-column layout from the medium breakpoint up (mobile-first — Req 21.1). */
+  @media (min-width: 48rem) {
+    .hero {
+      min-block-size: calc(100vh - var(--navbar-height, 4rem));
+      display: flex;
+      align-items: center;
+    }
+
+    .hero__inner {
+      grid-template-columns: 1.2fr 0.8fr;
+    }
+  }
+</style>

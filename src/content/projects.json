@@ -1,0 +1,58 @@
+[
+  {
+    "title": "Todo KMP",
+    "description": "A cross-platform (Android + iOS) todo app from a single codebase, built with Clean Architecture and native per-platform reminders and notifications.",
+    "techStack": [
+      "Kotlin Multiplatform",
+      "Compose Multiplatform",
+      "Room",
+      "Koin",
+      "Coroutines",
+      "kotlinx-datetime"
+    ],
+    "repoUrl": "https://github.com/ajiedrx/todo-kmp"
+  },
+  {
+    "title": "InstaApp",
+    "description": "An Instagram-style client with a feed, posts, nested comments, likes, and profiles — built on a clean, layered Clean Architecture + MVVM foundation.",
+    "techStack": [
+      "Kotlin",
+      "Jetpack Compose",
+      "Koin",
+      "Coroutines",
+      "Flow"
+    ],
+    "repoUrl": "https://github.com/ajiedrx/InstaApp"
+  },
+  {
+    "title": "GAMV",
+    "description": "A SwiftUI game-catalog app with a modular architecture (separate Swift Packages), MVVM + Router navigation, SwiftData persistence, and CI via Codemagic.",
+    "techStack": [
+      "Swift",
+      "SwiftUI",
+      "SwiftData",
+      "MVVM",
+      "Swift Package Modules"
+    ],
+    "repoUrl": "https://github.com/ajiedrx/gamv-swift"
+  },
+  {
+    "title": "LagiDimana",
+    "description": "An Android app with real-time location tracking and a notification service resilient to device clock manipulation.",
+    "techStack": [
+      "Kotlin",
+      "Location Services",
+      "Notifications"
+    ],
+    "repoUrl": "https://github.com/ajiedrx/LagiDimana"
+  },
+  {
+    "title": "Movapp",
+    "description": "A SwiftUI iOS app that showcases Swift and SwiftUI fundamentals through a clean, focused implementation.",
+    "techStack": [
+      "Swift",
+      "SwiftUI"
+    ],
+    "repoUrl": "https://github.com/ajiedrx/movapp"
+  }
+]

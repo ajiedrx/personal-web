@@ -1,0 +1,67 @@
+---
+/**
+ * Experience.astro — the career timeline Section (Req 11).
+ *
+ * Sources career entries from the Content_Store (`src/content/experience.json`)
+ * and renders them most-recent-first via `sortExperienceDesc` (Req 11.1, 11.3).
+ * Each entry is rendered by the reusable `TimelineEntry` component, which shows
+ * the role, organization, date range, and highlights (Req 11.2). An open-ended
+ * entry (`endDate === null`) is treated as most recent and displayed as
+ * "Present" via the localized label.
+ *
+ * All visible chrome strings resolve through the i18n helper `t()`.
+ *
+ * _Requirements: 11.1, 11.2, 11.3_
+ */
+import type { Locale } from '../i18n/locale';
+import { t } from '../i18n/locale';
+import { sortExperienceDesc } from '../lib/content';
+import type { ExperienceEntry } from '../content/types';
+import experienceData from '../content/experience.json';
+import TimelineEntry from '../components/TimelineEntry.astro';
+
+interface Props {
+  /** Active locale, used to resolve section chrome strings. */
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+
+// Content_Store entries, ordered most-recent-first (Req 11.1, 11.3).
+const entries = sortExperienceDesc(experienceData as ExperienceEntry[]);
+
+const heading = t(locale, 'experience.heading');
+const presentLabel = t(locale, 'experience.present');
+---
+
+<section id="experience" class="experience reveal" aria-labelledby="experience-heading">
+  <div class="experience__inner">
+    <h2 id="experience-heading" class="experience__heading">{heading}</h2>
+    <ol class="experience__timeline">
+      {entries.map((entry) => <TimelineEntry entry={entry} presentLabel={presentLabel} />)}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .experience {
+    padding-block: var(--space-2xl, 4rem);
+  }
+
+  .experience__inner {
+    max-inline-size: var(--content-max-width, 72rem);
+    margin-inline: auto;
+    padding-inline: var(--content-gutter);
+  }
+
+  .experience__heading {
+    margin: 0 0 var(--space-lg, 1.5rem);
+    font-size: var(--font-size-2xl, 1.75rem);
+  }
+
+  .experience__timeline {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>

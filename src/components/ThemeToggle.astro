@@ -1,0 +1,429 @@
+---
+/**
+ * ThemeToggle.astro — the dark/light theme toggle island (Req 7.1–7.6, 7.9).
+ *
+ * A self-hydrating island: the interactive behavior lives in the component's
+ * `<script>` block, which Astro bundles and ships to the browser (so no
+ * `client:*` hydration directive is needed — those are for framework
+ * components). The Navbar (Task 11) mounts it as `<ThemeToggle locale={locale} />`.
+ * The script runs on load and behaves like a `client:load` island. The pre-paint
+ * theme script in `BaseLayout` has already set `data-theme` on `<html>` before
+ * first paint (Req 7.7, 7.8); this island only reacts to visitor activation.
+ *
+ * Behavior contract:
+ *  - The button visually indicates the active theme via icon + `aria-pressed`
+ *    and a localized `aria-label` (Req 7.1). It is a native `<button>`, so it
+ *    is keyboard operable (Enter/Space) and focusable by default.
+ *  - On activation `applyTheme` flips `data-theme` on `<html>` and updates the
+ *    button state; the switch completes within 600 ms (Req 7.2).
+ *  - When `document.startViewTransition` exists, the change runs inside a view
+ *    transition; `motion.css` styles `::view-transition-new(root)` as a ripple
+ *    expanding from the click point (Req 7.3). Otherwise a `.theme-ripple-overlay`
+ *    element clip-path circle-reveals from the same point (Req 7.4). Both read
+ *    the `--ripple-x` / `--ripple-y` origin this island sets, and the shared
+ *    `ripple-reveal` keyframe runs for `--motion-duration-theme` (200–600 ms).
+ *  - The preference is persisted via `persistTheme`; a storage failure is
+ *    swallowed by the helper so the theme still applies for the session
+ *    (Req 7.5, 7.6).
+ *  - Under `prefers-reduced-motion: reduce` the theme switches instantly with
+ *    no ripple/reveal (Req 7.9).
+ *
+ * The island is self-contained: the labels below are inlined per-locale so the
+ * Navbar only needs to pass the active `locale`.
+ */
+import type { Locale } from '../i18n/locale';
+import { DEFAULT_LOCALE } from '../i18n/locale';
+
+interface Props {
+  /** Active locale; drives the accessible labels. Defaults to English. */
+  locale?: Locale;
+}
+
+const { locale = DEFAULT_LOCALE } = Astro.props;
+
+/**
+ * Accessible labels describe the action the button performs (switch to the
+ * *other* theme), keyed by the theme currently active. Kept local to the island
+ * so it needs no shared i18n keys.
+ */
+const LABELS: Record<Locale, { toLight: string; toDark: string }> = {
+  en: {
+    toLight: 'Switch to light theme',
+    toDark: 'Switch to dark theme',
+  },
+  id: {
+    toLight: 'Beralih ke tema terang',
+    toDark: 'Beralih ke tema gelap',
+  },
+};
+
+const labels = LABELS[locale];
+// The component may render on either page; the pre-paint script has set the
+// real value on <html>, but for the server-rendered markup we assume the dark
+// default (Req 7.8). The client script re-syncs from <html data-theme> on load.
+const initialLabel = labels.toLight; // dark is active by default → offer light
+---
+
+<button
+  type="button"
+  class="theme-toggle"
+  data-theme-toggle
+  data-label-to-light={labels.toLight}
+  data-label-to-dark={labels.toDark}
+  aria-pressed="false"
+  aria-label={initialLabel}
+  title={initialLabel}
+>
+  <!-- Sun icon (shown to switch to dark, i.e. when light is active). -->
+  <svg
+    class="theme-toggle__icon theme-toggle__icon--sun"
+    viewBox="0 0 24 24"
+    width="20"
+    height="20"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <circle cx="12" cy="12" r="4" fill="currentColor" />
+    <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="12" y1="2" x2="12" y2="4" />
+      <line x1="12" y1="20" x2="12" y2="22" />
+      <line x1="2" y1="12" x2="4" y2="12" />
+      <line x1="20" y1="12" x2="22" y2="12" />
+      <line x1="4.9" y1="4.9" x2="6.3" y2="6.3" />
+      <line x1="17.7" y1="17.7" x2="19.1" y2="19.1" />
+      <line x1="4.9" y1="19.1" x2="6.3" y2="17.7" />
+      <line x1="17.7" y1="6.3" x2="19.1" y2="4.9" />
+    </g>
+  </svg>
+  <!-- Moon icon (shown to switch to light, i.e. when dark is active). -->
+  <svg
+    class="theme-toggle__icon theme-toggle__icon--moon"
+    viewBox="0 0 24 24"
+    width="20"
+    height="20"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path
+      d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"
+      fill="currentColor"
+    />
+  </svg>
+</button>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 1px solid var(--color-border, currentColor);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-text, currentColor);
+    cursor: pointer;
+  }
+
+  .theme-toggle:hover {
+    background: var(--color-surface-hover, rgba(127, 127, 127, 0.12));
+  }
+
+  /* Show the icon representing the action available for the active theme:
+     dark active → moon (switch to light); light active → sun (switch to dark). */
+  .theme-toggle__icon--sun {
+    display: none;
+  }
+  .theme-toggle__icon--moon {
+    display: block;
+  }
+
+  :global(html[data-theme='light']) .theme-toggle__icon--sun {
+    display: block;
+  }
+  :global(html[data-theme='light']) .theme-toggle__icon--moon {
+    display: none;
+  }
+</style>
+
+<script>
+  import {
+    persistTheme,
+    readStoredTheme,
+    type Theme,
+  } from '../lib/storage';
+
+  const HTML = document.documentElement;
+
+  /** Read the currently applied theme from `<html data-theme>` (Req 7.8 default). */
+  function currentTheme(): Theme {
+    return HTML.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  }
+
+  /**
+   * Apply a theme: set `data-theme` on `<html>` and sync every toggle button's
+   * pressed state and accessible label (Req 7.1).
+   */
+  function applyTheme(theme: Theme): void {
+    HTML.setAttribute('data-theme', theme);
+
+    const buttons =
+      document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]');
+    for (const button of buttons) {
+      // `aria-pressed` reflects "light is on"; the label describes the next action.
+      const isLight = theme === 'light';
+      button.setAttribute('aria-pressed', String(isLight));
+      const nextLabel = isLight
+        ? button.dataset.labelToDark ?? 'Switch to dark theme'
+        : button.dataset.labelToLight ?? 'Switch to light theme';
+      button.setAttribute('aria-label', nextLabel);
+      button.setAttribute('title', nextLabel);
+    }
+  }
+
+  /** True when the visitor asked for reduced motion (Req 7.9). */
+  function prefersReducedMotion(): boolean {
+    return (
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    );
+  }
+
+  /**
+   * Set the ripple origin CSS variables from a click point, expressed as
+   * percentages of the viewport so both the View Transitions ripple and the
+   * clip-path fallback expand from the exact click location (Req 7.3, 7.4).
+   */
+  function setRippleOrigin(x: number, y: number): void {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const px = (x / w) * 100;
+    const py = (y / h) * 100;
+    HTML.style.setProperty('--ripple-x', `${px}%`);
+    HTML.style.setProperty('--ripple-y', `${py}%`);
+
+    // Exact distance from the click point to the farthest viewport corner. The
+    // reveal circle grows from radius 0 to exactly this, so its edge just
+    // reaches the farthest corner as the animation ends — full coverage with no
+    // wasted overscan.
+    const dx = Math.max(x, w - x);
+    const dy = Math.max(y, h - y);
+    const radius = Math.ceil(Math.hypot(dx, dy));
+    HTML.style.setProperty('--ripple-radius', `${radius}px`);
+  }
+
+  /**
+   * Reveal the new theme as a growing circular window that shows the *same
+   * page content* re-themed, so nothing is ever hidden behind a flat color
+   * (Req 7.3, 7.4). Outside the circle stays the old theme; inside it is the
+   * new theme; the content underneath both is identical and stays put.
+   *
+   * How it works:
+   *  1. Keep the real page on the *old* theme.
+   *  2. Snapshot the live page into a `position: fixed` clone overlay, put the
+   *     *new* theme on the clone (themes.css `[data-theme]` selectors match any
+   *     element, so the clone re-themes itself), and freeze it (`inert`, no
+   *     pointer events, animations paused) so it reads as a still image.
+   *  3. Clip the clone to a circle at the click point and grow that circle. The
+   *     clone is a static, isolated layer (`will-change`, `contain`), so the
+   *     browser can composite the clip cheaply — far cheaper than clipping the
+   *     live page while its kinetic/scroll-reveal/backdrop effects run.
+   *  4. When the circle covers the viewport, flip the real `<html>` to the new
+   *     theme underneath and remove the clone on the next frame — a seamless
+   *     hand-off with no flash.
+   *
+   * A DOM clone (rather than the View Transitions API) is used because it lets
+   * us hold the old theme underneath and the new theme on top simultaneously,
+   * which is exactly the "content revealed through the circle" effect. The
+   * clone is scroll-synced so its content aligns 1:1 with the real page.
+   */
+  function rippleReveal(theme: Theme, x: number, y: number): void {
+    // Freeze competing color transitions (e.g. the sticky header) and drop the
+    // header's live blur so the reveal reads as one clean surface.
+    HTML.setAttribute('data-theme-switching', '');
+
+    const radiusRaw = HTML.style.getPropertyValue('--ripple-radius');
+    const radius =
+      parseInt(radiusRaw, 10) ||
+      Math.ceil(Math.hypot(window.innerWidth, window.innerHeight));
+
+    // Build the re-themed clone of the page body.
+    const overlay = document.createElement('div');
+    overlay.className = 'theme-ripple-overlay';
+    overlay.setAttribute('data-theme', theme);
+    overlay.setAttribute('aria-hidden', 'true');
+    // Not focusable / not interactive: it is a transient visual snapshot.
+    (overlay as HTMLElement).inert = true;
+    // Circle centered on the click point; grown by animating its radius via the
+    // CSS custom property below (kept on a static layer so it composites well).
+    overlay.style.setProperty('--ripple-cx', `${x}px`);
+    overlay.style.setProperty('--ripple-cy', `${y}px`);
+    overlay.style.setProperty('--ripple-r', '0px');
+
+    // Clone the visible page content (everything in <body>) so the overlay
+    // shows the exact same layout, just re-themed. The clone is inert and its
+    // animations are disabled by CSS, so it reads as a still snapshot.
+    const clone = document.createElement('div');
+    clone.className = 'theme-ripple-clone';
+    for (const child of Array.from(document.body.children)) {
+      const el = child as HTMLElement;
+      const tag = el.tagName;
+      // Skip: a prior overlay (no recursive copies); <script> tags (a cloned
+      // script appended to the live document re-executes); and custom elements
+      // (tag names contain a hyphen, e.g. Astro islands or the dev toolbar) —
+      // cloning them re-runs their connected callback against the duplicate
+      // tree and throws. We only want a static *visual* snapshot.
+      if (
+        el.classList?.contains('theme-ripple-overlay') ||
+        tag === 'SCRIPT' ||
+        tag.includes('-')
+      ) {
+        continue;
+      }
+      const copy = el.cloneNode(true) as HTMLElement;
+      // Defensively strip nested scripts and custom elements from the copy too.
+      copy
+        .querySelectorAll?.('script, *')
+        .forEach((n) => {
+          if (n.tagName === 'SCRIPT' || n.tagName.includes('-')) n.remove();
+        });
+      clone.appendChild(copy);
+    }
+    // Pin each decorative kinetic block in the clone to the *live* transform of
+    // its real counterpart. The clone disables animations, so without this its
+    // kinetic blocks snap to their base position while the real ones (paused by
+    // the `data-theme-switching` CSS) hold their current drift offset — a
+    // mismatch that would show as a jump when the clone is removed. Copying the
+    // computed transform keeps them pixel-aligned.
+    const realKinetics = document.querySelectorAll<HTMLElement>('.kinetic');
+    const cloneKinetics = clone.querySelectorAll<HTMLElement>('.kinetic');
+    cloneKinetics.forEach((node, i) => {
+      const source = realKinetics[i];
+      if (source) {
+        node.style.transform = getComputedStyle(source).transform;
+      }
+    });
+
+    // Align the clone with the current scroll position so content matches 1:1.
+    clone.style.transform = `translateY(${-window.scrollY}px)`;
+    overlay.appendChild(clone);
+    document.body.appendChild(overlay);
+
+    const duration = readThemeDuration();
+    let finished = false;
+
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      // Hand-off sequence, ordered to avoid an end-of-reveal flash:
+      //  a) Flip the real page to the new theme. The full-coverage clone (same
+      //     theme) is still on top, so nothing changes on screen yet.
+      //  b) Next frame: remove the clone. The real page underneath is now
+      //     pixel-identical to what the clone showed → no visible change.
+      //  c) A further frame later: drop `data-theme-switching`. Doing this on
+      //     its own frame — after the clone is gone and the new theme has
+      //     painted — means the header's restored color transition and
+      //     backdrop-filter have no stale "before" state to animate from, so
+      //     the navbar no longer flashes as the flag lifts.
+      applyTheme(theme);
+      requestAnimationFrame(() => {
+        overlay.remove();
+        requestAnimationFrame(() => {
+          HTML.removeAttribute('data-theme-switching');
+        });
+      });
+    };
+
+    // Animate the circular window with the Web Animations API rather than a
+    // per-frame JS style write: the browser interpolates `clip-path` off the
+    // main thread's script work, on the isolated (`contain: paint`) clone
+    // layer, so the reveal stays smooth without a rAF loop competing for CPU.
+    //
+    // Start on the *next* frames so the one-time cost of cloning the DOM and
+    // its first paint doesn't stall the animation's opening frames (that
+    // startup work is the main hitch on slow CPUs; deferring keeps frame 0 of
+    // the reveal clean).
+    if (typeof overlay.animate === 'function') {
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          if (finished) return;
+          const animation = overlay.animate(
+            [
+              { clipPath: `circle(0px at ${x}px ${y}px)` },
+              { clipPath: `circle(${radius}px at ${x}px ${y}px)` },
+            ],
+            {
+              duration,
+              easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+              fill: 'forwards',
+            },
+          );
+          animation.addEventListener('finish', finish, { once: true });
+        }),
+      );
+    } else {
+      // No WAAPI: skip the reveal, just apply the theme.
+      finish();
+    }
+
+    // Safety net in case the animation never reports finished (e.g. throttled
+    // background tab): force the hand-off within the budget.
+    window.setTimeout(finish, duration + 250);
+  }
+
+  /** Reveal duration in ms, read from the `--motion-duration-theme` token. */
+  function readThemeDuration(): number {
+    const raw = getComputedStyle(HTML)
+      .getPropertyValue('--motion-duration-theme')
+      .trim();
+    const ms = raw.endsWith('ms')
+      ? parseFloat(raw)
+      : raw.endsWith('s')
+        ? parseFloat(raw) * 1000
+        : NaN;
+    return Number.isFinite(ms) && ms > 0 ? ms : 500;
+  }
+
+  /**
+   * Toggle the theme with a circular reveal from the click point. Origin
+   * coordinates default to the viewport centre for keyboard activation.
+   */
+  function toggleTheme(originX: number, originY: number): void {
+    const next: Theme = currentTheme() === 'dark' ? 'light' : 'dark';
+
+    // Reduced motion: switch instantly, no ripple/reveal (Req 7.9).
+    if (prefersReducedMotion()) {
+      applyTheme(next);
+      persistTheme(next);
+      return;
+    }
+
+    setRippleOrigin(originX, originY);
+    rippleReveal(next, originX, originY);
+    persistTheme(next);
+  }
+
+  // Sync each toggle to the theme actually applied to <html> (accounts for a
+  // stored light preference set by the pre-paint script) and wire activation.
+  const stored = readStoredTheme();
+  applyTheme(stored ?? currentTheme());
+
+  for (const button of document.querySelectorAll<HTMLButtonElement>(
+    '[data-theme-toggle]',
+  )) {
+    button.addEventListener('click', (event) => {
+      // For keyboard activation (Enter/Space) the click has no real coordinates
+      // (0,0); fall back to the button's centre so the ripple still reads well.
+      const mouse = event as MouseEvent;
+      let x = mouse.clientX;
+      let y = mouse.clientY;
+      if (!x && !y) {
+        const rect = button.getBoundingClientRect();
+        x = rect.left + rect.width / 2;
+        y = rect.top + rect.height / 2;
+      }
+      toggleTheme(x, y);
+    });
+  }
+</script>

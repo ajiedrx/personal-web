@@ -1,0 +1,79 @@
+{
+  "nav": {
+    "about": "About",
+    "expertise": "Expertise",
+    "experience": "Experience",
+    "projects": "Projects",
+    "impact": "Impact",
+    "education": "Education",
+    "contact": "Contact",
+    "openMenu": "Open navigation menu",
+    "closeMenu": "Close navigation menu",
+    "primaryLabel": "Primary"
+  },
+  "hero": {
+    "tagline": "I build fast, resilient mobile apps — and the backends behind them.",
+    "ctaProjects": "View Projects",
+    "ctaContact": "Get in Touch"
+  },
+  "about": {
+    "heading": "About",
+    "narrative": "Full-Stack Mobile Engineer with 4+ years of experience building native Android and cross-platform apps. I specialize in Kotlin, Clean Architecture, and declarative UI (Jetpack Compose, SwiftUI), with a track record of driving real performance gains, leading technical refactors, and mentoring engineers. I'm now expanding into multi-platform architecture (KMP) and AI-driven workflows.",
+    "location": "Surabaya, Indonesia",
+    "locationLabel": "Based in",
+    "availabilityLabel": "Availability"
+  },
+  "expertise": {
+    "heading": "Expertise",
+    "categories": {
+      "core-mobile": "Core Mobile",
+      "full-stack": "Full-Stack",
+      "modern-tech": "Modern Tech",
+      "quality": "Quality"
+    }
+  },
+  "experience": {
+    "heading": "Experience",
+    "present": "Present"
+  },
+  "projects": {
+    "heading": "Featured Projects",
+    "intro": "A selection of recent work across mobile and full-stack.",
+    "repoLabel": "View repository",
+    "demoLabel": "View demo",
+    "screenshotAlt": "Screenshot of {title}"
+  },
+  "impact": {
+    "heading": "Impact",
+    "items": {
+      "years": "Years of professional experience",
+      "anrEliminated": "ANRs eliminated via Coroutines optimization",
+      "oomEliminated": "Out-of-memory errors eliminated via batch processing",
+      "buildTimeReduced": "Build time reduced through modularization",
+      "teamsMentored": "Teams mentored as Capstone Project Advisor",
+      "engineersLed": "Engineers led as Android Sprint Lead"
+    }
+  },
+  "education": {
+    "heading": "Mentorship & Education",
+    "mentorshipTitle": "Mentorship",
+    "educationTitle": "Education",
+    "certificationsTitle": "Featured Certifications",
+    "expiryLabel": "Expires",
+    "credentialLabel": "Credential ID"
+  },
+  "contact": {
+    "heading": "Contact",
+    "intro": "Have a project in mind or just want to say hello? Reach out through any of these.",
+    "cta": "Email me",
+    "emailLabel": "Email",
+    "linkedinLabel": "LinkedIn",
+    "githubLabel": "GitHub",
+    "socialsLabel": "Elsewhere",
+    "unavailable": "Coming soon"
+  },
+  "footer": {
+    "quickLinksLabel": "Quick links",
+    "copyright": "© {year} {name}. All rights reserved."
+  }
+}

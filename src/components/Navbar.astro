@@ -1,0 +1,262 @@
+---
+/**
+ * Navbar.astro — sticky primary navigation.
+ *
+ * Renders one anchor link per navigable section (Req 4.1), hosts the Theme and
+ * Language toggles, and provides a mobile hamburger affordance (Req 21.3). The
+ * interactive behavior (scroll-spy, smooth/instant scroll, sticky/reveal, mobile
+ * menu) lives in `Navbar.ts`, loaded via a bundled `<script>` — the design
+ * specifies the scroll-spy hydrates lazily (`client:idle`); a deferred module
+ * script is the equivalent for this non-critical enhancement (Req 4.2–4.5).
+ *
+ * The Theme and Language toggles are separate islands mounted with `client:load`
+ * so they respond to the first interaction.
+ *
+ * _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 21.3_
+ */
+import type { Locale } from '../i18n/locale';
+import { t } from '../i18n/locale';
+import ThemeToggle from './ThemeToggle.astro';
+import LanguageToggle from './LanguageToggle.astro';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+
+/**
+ * One entry per navigable section. `id` matches the anchor id the locale pages
+ * assign (Task 19); `labelKey` resolves through `t()`. In-page hashes don't need
+ * the base prefix (they resolve relative to the current document — see withBase).
+ */
+const NAV_LINKS: ReadonlyArray<{ id: string; labelKey: string }> = [
+  { id: 'about', labelKey: 'nav.about' },
+  { id: 'expertise', labelKey: 'nav.expertise' },
+  { id: 'experience', labelKey: 'nav.experience' },
+  { id: 'projects', labelKey: 'nav.projects' },
+  { id: 'impact', labelKey: 'nav.impact' },
+  { id: 'education', labelKey: 'nav.education' },
+  { id: 'contact', labelKey: 'nav.contact' },
+];
+
+const openMenuLabel = t(locale, 'nav.openMenu');
+const closeMenuLabel = t(locale, 'nav.closeMenu');
+const primaryLabel = t(locale, 'nav.primaryLabel');
+---
+
+<header class="site-header" data-navbar>
+  <nav class="navbar" aria-label={primaryLabel}>
+    <ul class="navbar__links" data-nav-menu id="navbar-menu">
+      {
+        NAV_LINKS.map((link) => (
+          <li class="navbar__item">
+            <a class="navbar__link" data-nav-link href={`#${link.id}`}>
+              {t(locale, link.labelKey)}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="navbar__actions">
+      <!--
+        ThemeToggle and LanguageToggle are Astro-component islands: their client
+        behavior ships via their own bundled <script> tags, so no hydration
+        directive is used (a `client:*` directive is only valid on framework
+        components — Astro components can't render on the client).
+      -->
+      <ThemeToggle locale={locale} />
+      <LanguageToggle locale={locale} />
+
+      <button
+        type="button"
+        class="navbar__toggle"
+        data-nav-toggle
+        aria-expanded="false"
+        aria-controls="navbar-menu"
+        aria-label={openMenuLabel}
+        data-label-open={openMenuLabel}
+        data-label-close={closeMenuLabel}
+      >
+        <span class="navbar__toggle-bars" aria-hidden="true"></span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<script>
+  // Bundled by Astro and deferred; equivalent to lazy (`client:idle`) hydration
+  // for this non-critical scroll-spy / reveal enhancement (design: Navbar).
+  import './Navbar.ts';
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: var(--z-sticky);
+    inline-size: 100%;
+    background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+    border-block-end: var(--border-width) solid transparent;
+    backdrop-filter: saturate(1.4) blur(8px);
+    transition:
+      transform var(--duration-base) var(--ease-standard),
+      border-color var(--duration-base) var(--ease-standard),
+      background-color var(--duration-base) var(--ease-standard);
+  }
+
+  /* Sticky/reveal-on-scroll (Req 4.4): the .is-scrolled state adds a divider,
+     .is-hidden slides the bar out of view when scrolling down. */
+  .site-header.is-scrolled {
+    border-block-end-color: var(--color-border);
+  }
+
+  .site-header.is-hidden {
+    transform: translateY(-100%);
+  }
+
+  .navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    max-inline-size: var(--content-max-width);
+    margin-inline: auto;
+    padding-block: var(--space-3);
+    padding-inline: var(--content-gutter);
+  }
+
+  .navbar__links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .navbar__item {
+    margin: 0;
+  }
+
+  .navbar__link {
+    display: inline-block;
+    padding-block: var(--space-1);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-wide);
+    text-decoration: none;
+    text-transform: uppercase;
+    border-block-end: var(--border-width-thick) solid transparent;
+    transition:
+      color var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard);
+  }
+
+  .navbar__link:hover {
+    color: var(--color-text);
+  }
+
+  /* Scroll-spy active link (Req 4.3). Also matches :target as a no-JS fallback. */
+  .navbar__link.is-active,
+  .navbar__link[aria-current='location'] {
+    color: var(--color-text);
+    border-block-end-color: var(--color-accent);
+  }
+
+  .navbar__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  /* Hamburger — hidden on desktop, shown on small viewports (Req 21.3). */
+  .navbar__toggle {
+    display: none;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    padding: 0;
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .navbar__toggle-bars,
+  .navbar__toggle-bars::before,
+  .navbar__toggle-bars::after {
+    display: block;
+    inline-size: 1.1rem;
+    block-size: 2px;
+    margin-inline: auto;
+    background: currentColor;
+    transition: transform var(--duration-fast) var(--ease-standard);
+  }
+
+  .navbar__toggle-bars {
+    position: relative;
+  }
+
+  .navbar__toggle-bars::before,
+  .navbar__toggle-bars::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+  }
+
+  .navbar__toggle-bars::before {
+    inset-block-start: -6px;
+  }
+
+  .navbar__toggle-bars::after {
+    inset-block-start: 6px;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Mobile layout: collapse the link list behind the hamburger toggle. */
+  /* ------------------------------------------------------------------ */
+  @media (max-width: 47.99rem) {
+    .navbar__toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .navbar__links {
+      position: absolute;
+      inset-inline: 0;
+      inset-block-start: 100%;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-4);
+      padding: var(--space-5) var(--content-gutter);
+      background: var(--color-surface);
+      border-block-end: var(--border-width) solid var(--color-border);
+      /* Hidden by default; revealed when the menu is open. */
+      display: none;
+    }
+
+    .site-header.is-menu-open .navbar__links {
+      display: flex;
+    }
+
+    .navbar__link {
+      font-size: var(--text-base);
+    }
+  }
+
+  /* Reduced motion: drop the sliding/reveal transitions (Req 4.5, 18.7). */
+  @media (prefers-reduced-motion: reduce) {
+    .site-header,
+    .navbar__link,
+    .navbar__toggle-bars,
+    .navbar__toggle-bars::before,
+    .navbar__toggle-bars::after {
+      transition: none;
+    }
+  }
+</style>

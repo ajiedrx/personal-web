@@ -1,0 +1,92 @@
+---
+/**
+ * ScrollReveal.astro — scroll-reveal controller island.
+ *
+ * A single controller island (hydrated `client:visible` where it is mounted)
+ * observes every `.reveal` element on the page with one IntersectionObserver
+ * and adds the `is-revealed` marker class as each element enters the viewport,
+ * triggering the `reveal-rise` animation defined in `src/styles/motion.css`.
+ *
+ * Opt-in contract:
+ *   Any element (typically a `<section>`) opts into scroll-reveal by adding the
+ *   `reveal` class. The `.reveal` / `.reveal.is-revealed` / `reveal-rise`
+ *   styling and keyframes live in `src/styles/motion.css`.
+ *
+ * Reduced motion (Req 17.2):
+ *   `motion.css` already forces `.reveal` elements to their final state under
+ *   `@media (prefers-reduced-motion: reduce)`. When reduced motion is
+ *   requested this controller no-ops: it skips observing and instead marks all
+ *   `.reveal` elements as revealed immediately, so nothing depends on the
+ *   observer to become visible.
+ *
+ * Requirements:
+ *   17.1 — reveal sections entering the viewport via an IntersectionObserver.
+ *   17.2 — under reduced motion, display sections in their final state.
+ */
+---
+
+<script>
+  // Selector for elements that opt into scroll-reveal.
+  const REVEAL_SELECTOR = ".reveal";
+  // Marker class the observer adds to trigger the reveal animation.
+  const REVEALED_CLASS = "is-revealed";
+  // Reveal slightly before the element is fully on screen for a smoother feel.
+  const ROOT_MARGIN = "0px 0px -10% 0px";
+  // Fraction of the element that must be visible to trigger the reveal.
+  const VISIBILITY_THRESHOLD = 0.1;
+
+  function prefersReducedMotion(): boolean {
+    return (
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
+  }
+
+  // Marker added once the reveal animation ends so the `will-change` layer hint
+  // can be released (it is only useful while the element is actually animating).
+  const REVEAL_DONE_CLASS = "is-reveal-done";
+
+  function reveal(el: Element): void {
+    el.classList.add(REVEALED_CLASS);
+    // Release the compositor-layer hint when the one-shot animation finishes.
+    el.addEventListener(
+      "animationend",
+      () => el.classList.add(REVEAL_DONE_CLASS),
+      { once: true },
+    );
+  }
+
+  function initScrollReveal(): void {
+    const targets = document.querySelectorAll(REVEAL_SELECTOR);
+    if (targets.length === 0) return;
+
+    // Reduced motion (Req 17.2): CSS already renders the final state, so the
+    // controller no-ops — mark everything revealed (no animation runs, so also
+    // mark it done so no stray `will-change` layer hint lingers) and skip
+    // observing.
+    if (prefersReducedMotion() || typeof IntersectionObserver !== "function") {
+      targets.forEach((el) => {
+        el.classList.add(REVEALED_CLASS, REVEAL_DONE_CLASS);
+      });
+      return;
+    }
+
+    // Single controller observes every .reveal element (Req 17.1).
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            reveal(entry.target);
+            // Reveal is one-shot: stop observing once shown.
+            obs.unobserve(entry.target);
+          }
+        }
+      },
+      { rootMargin: ROOT_MARGIN, threshold: VISIBILITY_THRESHOLD }
+    );
+
+    targets.forEach((el) => observer.observe(el));
+  }
+
+  initScrollReveal();
+</script>

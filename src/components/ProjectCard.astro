@@ -1,0 +1,195 @@
+---
+/**
+ * ProjectCard.astro — a single curated project card (Req 12).
+ *
+ * Presentation-only component rendered once per valid project by
+ * `FeaturedProjects.astro`. Validity (required fields, 1–10 tech-stack chips)
+ * is the section's concern via `validProjects`; this component assumes a
+ * well-formed `Project` and renders it.
+ *
+ * Behavior contract:
+ *  - Always shows the title, selling description, tech-stack chips, and a
+ *    repository link (Req 12.3).
+ *  - The repository and demo links open their target destinations; external
+ *    targets open in a new tab with `rel="noopener noreferrer"` (Req 12.6).
+ *  - The demo link renders only when `demoUrl` is provided (Req 12.7).
+ *  - The screenshot renders only when `screenshot` is provided; its path is
+ *    base-prefixed via `withBase` so it resolves under the project subpath
+ *    (Req 12.8).
+ *  - A visually distinct hover state is defined in the scoped styles (Req 12.5).
+ *
+ * All visible chrome strings (link labels, screenshot alt) resolve through the
+ * i18n helper `t()` in the parent and are passed in as ready-to-render strings.
+ *
+ * _Requirements: 12.3, 12.5, 12.6, 12.7, 12.8_
+ */
+import type { Project } from '../content/types';
+import { withBase } from '../lib/withBase';
+
+interface Props {
+  /** The (already validated) project to render. */
+  project: Project;
+  /** Localized accessible label for the repository link. */
+  repoLabel: string;
+  /** Localized accessible label for the demo link. */
+  demoLabel: string;
+  /** Localized alt text for the screenshot, with `{title}` already substituted. */
+  screenshotAlt: string;
+}
+
+const { project, repoLabel, demoLabel, screenshotAlt } = Astro.props;
+
+// Repo/demo targets are external URLs; withBase leaves absolute URLs untouched
+// while still base-prefixing an internal screenshot asset path (Req 12.8).
+const screenshotSrc =
+  project.screenshot !== undefined ? withBase(project.screenshot) : undefined;
+---
+
+<article class="project-card">
+  {
+    screenshotSrc !== undefined && (
+      <img
+        class="project-card__screenshot"
+        src={screenshotSrc}
+        alt={screenshotAlt}
+        loading="lazy"
+        decoding="async"
+      />
+    )
+  }
+
+  <div class="project-card__body">
+    <h3 class="project-card__title">{project.title}</h3>
+    <p class="project-card__description">{project.description}</p>
+
+    <ul class="project-card__tech" aria-label="Tech stack">
+      {project.techStack.map((chip) => (
+        <li class="project-card__chip">{chip}</li>
+      ))}
+    </ul>
+
+    <div class="project-card__links">
+      <a
+        class="project-card__link project-card__link--repo"
+        href={project.repoUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {repoLabel}
+      </a>
+      {
+        project.demoUrl !== undefined && (
+          <a
+            class="project-card__link project-card__link--demo"
+            href={project.demoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {demoLabel}
+          </a>
+        )
+      }
+    </div>
+  </div>
+</article>
+
+<style>
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--color-surface, transparent);
+    border: var(--border-width, 1px) solid var(--color-border, currentColor);
+    border-radius: var(--radius-lg, 0.75rem);
+    /* Default state — the hover state below is visually distinct (Req 12.5). */
+    transform: translateY(0);
+    transition:
+      transform var(--duration-base, 200ms) var(--ease-standard, ease),
+      border-color var(--duration-base, 200ms) var(--ease-standard, ease),
+      box-shadow var(--duration-base, 200ms) var(--ease-standard, ease);
+  }
+
+  /* Distinct hover state: lift, accent border, and elevation (Req 12.5). */
+  .project-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-accent, #ff5a1f);
+    box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.35);
+  }
+
+  .project-card__screenshot {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-block-end: var(--border-width, 1px) solid var(--color-border, currentColor);
+  }
+
+  .project-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3, 0.75rem);
+    padding: var(--space-lg, 1.5rem);
+  }
+
+  .project-card__title {
+    margin: 0;
+    font-size: var(--font-size-lg, 1.125rem);
+    line-height: 1.3;
+  }
+
+  .project-card__description {
+    margin: 0;
+    color: var(--color-text-muted, inherit);
+  }
+
+  .project-card__tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2, 0.5rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project-card__chip {
+    padding: 0.15rem 0.6rem;
+    font-size: var(--font-size-sm, 0.8125rem);
+    color: var(--color-text, inherit);
+    background: color-mix(in srgb, var(--color-accent, #ff5a1f) 12%, transparent);
+    border-radius: 999px;
+  }
+
+  .project-card__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4, 1rem);
+    margin-block-start: auto;
+    padding-block-start: var(--space-2, 0.5rem);
+  }
+
+  .project-card__link {
+    font-weight: var(--weight-medium, 600);
+    color: var(--color-accent, #ff5a1f);
+    text-decoration: none;
+    border-block-end: var(--border-width-thick, 2px) solid transparent;
+    transition: border-color var(--duration-fast, 120ms) var(--ease-standard, ease);
+  }
+
+  .project-card__link:hover,
+  .project-card__link:focus-visible {
+    border-block-end-color: currentColor;
+  }
+
+  /* Reduced motion: no lift transition (Req 18.7). */
+  @media (prefers-reduced-motion: reduce) {
+    .project-card,
+    .project-card__link {
+      transition: none;
+    }
+
+    .project-card:hover {
+      transform: none;
+    }
+  }
+</style>

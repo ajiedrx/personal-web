@@ -1,0 +1,58 @@
+---
+/**
+ * LanguageToggle.astro — MINIMAL STUB (placeholder).
+ *
+ * NOTE: The full persist-and-route implementation is Task 10. This stub exists
+ * only so the Navbar (Task 11.1) can import and mount it with `client:load`
+ * and the site builds. If Task 10 has already produced a real LanguageToggle,
+ * that implementation supersedes this file.
+ *
+ * Contract expected by the Navbar: takes a `locale` prop and offers a switch to
+ * the other locale's path.
+ *
+ * _Requirements (full component): 6.1–6.4_
+ */
+import type { Locale } from '../i18n/locale';
+import { localePath } from '../lib/withBase';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const other: Locale = locale === 'id' ? 'en' : 'id';
+const otherHref = localePath(other);
+const otherLabel = other.toUpperCase();
+---
+
+<a
+  class="language-toggle"
+  href={otherHref}
+  hreflang={other}
+  data-language-toggle={other}
+>
+  {otherLabel}
+</a>
+
+<style>
+  .language-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: 2.5rem;
+    block-size: 2.5rem;
+    padding-inline: var(--space-3);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-decoration: none;
+  }
+
+  .language-toggle:hover {
+    border-color: var(--color-border-strong);
+  }
+</style>

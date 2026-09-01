@@ -1,0 +1,235 @@
+/*
+ * global.css — base reset and semantic element styling.
+ *
+ * Consumes design tokens declared in tokens.css / themes.css (see task 2.1),
+ * referenced as var(--token-name). Fallback values are supplied for resilience
+ * so the base layer degrades gracefully if a token is not yet defined.
+ *
+ * Palette direction (editorial / brutalist-refined):
+ *   near-black / off-white / gray, orange accent #FF5A1F, blue secondary #2E6BFF.
+ *
+ * Requirements: 18.4 (visible focus indicator >= 3:1), 18.5 (keyboard operable),
+ *               18.7 (reduced-motion suppression), 17.2 (final-state under reduced motion).
+ */
+
+/* ---------------------------------------------------------------------------
+ * Modern reset
+ * ------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -moz-tab-size: 4;
+  tab-size: 4;
+}
+
+/*
+ * Smooth scrolling for in-page anchor navigation (Req 4.2). Suppressed when the
+ * visitor prefers reduced motion (Req 4.5, 18.7) — see the guard at the bottom.
+ */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  line-height: var(--line-height-base, 1.6);
+  font-family: var(--font-body, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
+  font-size: var(--font-size-base, 1rem);
+  color: var(--color-text, #16161a);
+  background-color: var(--color-bg, #f7f6f2);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition:
+    color var(--motion-duration-theme, 300ms) var(--motion-ease, ease),
+    background-color var(--motion-duration-theme, 300ms) var(--motion-ease, ease);
+}
+
+/* ---------------------------------------------------------------------------
+ * Typographic rhythm and headings
+ * ------------------------------------------------------------------------- */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading, var(--font-body, system-ui, sans-serif));
+  font-weight: var(--font-weight-heading, 700);
+  line-height: var(--line-height-heading, 1.1);
+  color: var(--color-heading, var(--color-text, #16161a));
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--font-size-h1, clamp(2.5rem, 6vw, 4.5rem));
+}
+
+h2 {
+  font-size: var(--font-size-h2, clamp(1.875rem, 4vw, 3rem));
+}
+
+h3 {
+  font-size: var(--font-size-h3, clamp(1.375rem, 2.5vw, 2rem));
+}
+
+h4 {
+  font-size: var(--font-size-h4, 1.25rem);
+}
+
+p,
+li {
+  text-wrap: pretty;
+}
+
+p {
+  max-width: var(--measure, 68ch);
+}
+
+/* ---------------------------------------------------------------------------
+ * Links
+ * ------------------------------------------------------------------------- */
+
+a {
+  color: var(--color-accent, #ff5a1f);
+  text-decoration-color: var(--color-accent, #ff5a1f);
+  text-underline-offset: 0.15em;
+  transition: color var(--motion-duration-fast, 150ms) var(--motion-ease, ease);
+}
+
+a:hover {
+  color: var(--color-accent-strong, var(--color-secondary, #2e6bff));
+}
+
+/* ---------------------------------------------------------------------------
+ * Media and embedded content
+ * ------------------------------------------------------------------------- */
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ---------------------------------------------------------------------------
+ * Forms and interactive controls inherit type; buttons look pressable
+ * ------------------------------------------------------------------------- */
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+/* ---------------------------------------------------------------------------
+ * Lists used for semantic grouping without list styling
+ * ------------------------------------------------------------------------- */
+
+ul[role="list"],
+ol[role="list"] {
+  list-style: none;
+  padding: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * Landmarks and layout primitives
+ * ------------------------------------------------------------------------- */
+
+:where(section) {
+  scroll-margin-top: var(--navbar-height, 4rem);
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--color-border, rgba(22, 22, 26, 0.15));
+}
+
+/* ---------------------------------------------------------------------------
+ * Accessible focus indicator (Req 18.4, 18.5)
+ *
+ * A visible, high-contrast focus ring is rendered for keyboard focus. The ring
+ * uses the accent token plus an offset contrast halo so it maintains >= 3:1
+ * contrast against adjacent surfaces in both light and dark themes.
+ * ------------------------------------------------------------------------- */
+
+:focus-visible {
+  outline: var(--focus-ring-width, 3px) solid var(--color-focus, var(--color-accent, #ff5a1f));
+  outline-offset: var(--focus-ring-offset, 2px);
+  /* Contrast halo separates the ring from busy or same-hue backgrounds. */
+  box-shadow: 0 0 0 var(--focus-ring-halo, 5px) var(--color-focus-halo, var(--color-bg, #f7f6f2));
+  border-radius: var(--focus-ring-radius, 2px);
+}
+
+/* Do not show the ring for pointer interactions, only keyboard focus. */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ---------------------------------------------------------------------------
+ * Skip link for keyboard users (supports Req 18.5 logical navigation)
+ * ------------------------------------------------------------------------- */
+
+.skip-link {
+  position: absolute;
+  left: var(--space-sm, 0.75rem);
+  top: -100%;
+  z-index: 1000;
+  padding: var(--space-sm, 0.75rem) var(--space-md, 1rem);
+  color: var(--color-bg, #f7f6f2);
+  background-color: var(--color-text, #16161a);
+  border-radius: var(--radius-sm, 4px);
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: var(--space-sm, 0.75rem);
+}
+
+/* ---------------------------------------------------------------------------
+ * Visually hidden utility for screen-reader-only content
+ * ------------------------------------------------------------------------- */
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * Reduced-motion: disable base scroll animation (Req 4.5, 18.7)
+ * ------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

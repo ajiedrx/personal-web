@@ -1,0 +1,79 @@
+{
+  "nav": {
+    "about": "Tentang",
+    "expertise": "Keahlian",
+    "experience": "Pengalaman",
+    "projects": "Proyek",
+    "impact": "Dampak",
+    "education": "Pendidikan",
+    "contact": "Kontak",
+    "openMenu": "Buka menu navigasi",
+    "closeMenu": "Tutup menu navigasi",
+    "primaryLabel": "Utama"
+  },
+  "hero": {
+    "tagline": "Saya membangun aplikasi mobile yang cepat dan tangguh — beserta backend di baliknya.",
+    "ctaProjects": "Lihat Proyek",
+    "ctaContact": "Hubungi Saya"
+  },
+  "about": {
+    "heading": "Tentang",
+    "narrative": "Full-Stack Mobile Engineer dengan pengalaman 4+ tahun membangun aplikasi Android native dan lintas platform. Saya ahli di Kotlin, Clean Architecture, dan UI deklaratif (Jetpack Compose, SwiftUI), dengan rekam jejak nyata mendorong peningkatan performa, memimpin refactor teknis, dan membimbing engineer. Kini saya melebarkan sayap ke arsitektur multi-platform (KMP) dan alur kerja berbasis AI.",
+    "location": "Surabaya, Indonesia",
+    "locationLabel": "Berbasis di",
+    "availabilityLabel": "Ketersediaan"
+  },
+  "expertise": {
+    "heading": "Keahlian",
+    "categories": {
+      "core-mobile": "Mobile Inti",
+      "full-stack": "Full-Stack",
+      "modern-tech": "Teknologi Modern",
+      "quality": "Kualitas"
+    }
+  },
+  "experience": {
+    "heading": "Pengalaman",
+    "present": "Sekarang"
+  },
+  "projects": {
+    "heading": "Proyek Unggulan",
+    "intro": "Kumpulan karya terbaru di ranah mobile dan full-stack.",
+    "repoLabel": "Lihat repositori",
+    "demoLabel": "Lihat demo",
+    "screenshotAlt": "Tangkapan layar {title}"
+  },
+  "impact": {
+    "heading": "Dampak",
+    "items": {
+      "years": "Tahun pengalaman profesional",
+      "anrEliminated": "ANR dihilangkan lewat optimasi Coroutines",
+      "oomEliminated": "Error Out Of Memory dihilangkan lewat batch processing",
+      "buildTimeReduced": "Build time berkurang lewat modularisasi",
+      "teamsMentored": "Tim dibimbing sebagai Capstone Project Advisor",
+      "engineersLed": "Engineer dipimpin sebagai Android Sprint Lead"
+    }
+  },
+  "education": {
+    "heading": "Mentorship & Pendidikan",
+    "mentorshipTitle": "Mentorship",
+    "educationTitle": "Pendidikan",
+    "certificationsTitle": "Sertifikasi Unggulan",
+    "expiryLabel": "Kedaluwarsa",
+    "credentialLabel": "ID Kredensial"
+  },
+  "contact": {
+    "heading": "Kontak",
+    "intro": "Punya proyek atau sekadar ingin menyapa? Hubungi lewat salah satu kanal ini.",
+    "cta": "Kirim email",
+    "emailLabel": "Email",
+    "linkedinLabel": "LinkedIn",
+    "githubLabel": "GitHub",
+    "socialsLabel": "Lainnya",
+    "unavailable": "Segera hadir"
+  },
+  "footer": {
+    "quickLinksLabel": "Tautan cepat",
+    "copyright": "© {year} {name}. Hak cipta dilindungi."
+  }
+}

@@ -1,0 +1,116 @@
+---
+/**
+ * About.astro — the positioning / "About" section (Req 9).
+ *
+ * Renders (Req 9.1, 9.2, 9.3):
+ *  - A positioning narrative sourced from the I18n_Store (`about.narrative`).
+ *  - The owner location, "Surabaya, Indonesia", sourced from the I18n_Store
+ *    (`about.location`) so it is localizable per locale.
+ *  - An availability status value sourced from the Content_Store
+ *    (`profile.json` → `availability`, a placeholder-flagged field per Req 22.4).
+ *
+ * All visible copy resolves through `t()` (Req 5.3, 5.5); the availability
+ * value is structured, language-neutral content and therefore comes from the
+ * Content_Store rather than the I18n_Store, matching the data/markup split
+ * described in the design.
+ *
+ * The section owns the `#about` anchor the Navbar links to and uses a semantic
+ * `<section>` + `<h2>` (the page owns the single `<h1>`) — Req 3.3, 18.1.
+ *
+ * _Requirements: 9.1, 9.2, 9.3_
+ */
+import type { Locale } from '../i18n/locale';
+import { t } from '../i18n/locale';
+import type { Profile } from '../content/types';
+import profileData from '../content/profile.json';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+
+// Availability is structured Content_Store data (Req 9.3, 22.4).
+const profile = profileData as Profile;
+const { availability } = profile;
+
+const heading = t(locale, 'about.heading');
+const narrative = t(locale, 'about.narrative');
+const location = t(locale, 'about.location');
+const locationLabel = t(locale, 'about.locationLabel');
+const availabilityLabel = t(locale, 'about.availabilityLabel');
+---
+
+<section id="about" class="about" aria-labelledby="about-heading">
+  <div class="about__inner">
+    <h2 id="about-heading" class="about__heading">{heading}</h2>
+
+    <p class="about__narrative">{narrative}</p>
+
+    <dl class="about__meta">
+      <div class="about__meta-item">
+        <dt class="about__meta-term">{locationLabel}</dt>
+        <dd class="about__meta-value" data-about-location>{location}</dd>
+      </div>
+      <div class="about__meta-item">
+        <dt class="about__meta-term">{availabilityLabel}</dt>
+        <dd class="about__meta-value" data-about-availability>{availability}</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<style>
+  .about {
+    padding-block: var(--space-9, 4rem);
+  }
+
+  .about__inner {
+    max-inline-size: var(--content-max-width);
+    margin-inline: auto;
+    padding-inline: var(--content-gutter);
+  }
+
+  .about__heading {
+    margin: 0 0 var(--space-5, 1.5rem);
+    font-size: var(--text-2xl, 2rem);
+    font-weight: var(--weight-bold, 700);
+    letter-spacing: var(--tracking-tight, -0.01em);
+    color: var(--color-text);
+  }
+
+  .about__narrative {
+    max-inline-size: 60ch;
+    margin: 0;
+    font-size: var(--text-lg, 1.25rem);
+    line-height: var(--leading-relaxed, 1.6);
+    color: var(--color-text);
+  }
+
+  .about__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-7, 2.5rem);
+    margin: var(--space-7, 2.5rem) 0 0;
+  }
+
+  .about__meta-item {
+    margin: 0;
+  }
+
+  .about__meta-term {
+    margin: 0 0 var(--space-1, 0.25rem);
+    font-size: var(--text-sm, 0.875rem);
+    font-weight: var(--weight-medium, 500);
+    letter-spacing: var(--tracking-wide, 0.05em);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .about__meta-value {
+    margin: 0;
+    font-size: var(--text-base, 1rem);
+    font-weight: var(--weight-medium, 500);
+    color: var(--color-text);
+  }
+</style>

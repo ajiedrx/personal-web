@@ -1,0 +1,236 @@
+---
+/**
+ * Contact.astro — the Contact Section (Req 15).
+ *
+ * Renders the owner's contact channels sourced from the Content_Store
+ * (`profile.json` → `contact`): email, LinkedIn, the verified GitHub profile,
+ * and any additional socials (Req 15.1, 15.2).
+ *
+ * Placeholder safety (Req 15.4): contact values may still hold placeholder data
+ * while the owner fills in real details later (Req 22.4). A placeholder value
+ * renders as inert text — no `href`, marked `aria-disabled` — so there is never
+ * a broken link target. Real values render as normal external links.
+ *
+ * The `mailto` CTA (Req 15.3) is only wired when a real email is present; when
+ * the email is a placeholder the CTA renders inert. GitHub is the verified
+ * `https://github.com/ajiedrx` (Req 15.2) and always renders as a real link.
+ *
+ * All visible chrome strings resolve through the i18n helper `t()` (Req 5.3,
+ * 5.5); the contact values themselves are structured, language-neutral
+ * Content_Store data. The section owns the `#contact` anchor the Navbar and
+ * Hero CTA link to, using a semantic `<section>` + `<h2>` (Req 3.3, 18.1).
+ *
+ * _Requirements: 15.1, 15.2, 15.3, 15.4_
+ */
+import type { Locale } from '../i18n/locale';
+import { t } from '../i18n/locale';
+import type { Profile } from '../content/types';
+import profileData from '../content/profile.json';
+import { isRealEmail, isRealUrl, isRealSocial } from '../lib/content';
+
+interface Props {
+  /** Active locale, used to resolve section chrome strings. */
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+
+const profile = profileData as Profile;
+const { email, linkedin, github, socials = [] } = profile.contact;
+
+// Determine which channels carry real, wire-able targets (Req 15.4).
+const emailReal = isRealEmail(email);
+const linkedinReal = isRealUrl(linkedin);
+// GitHub is the verified profile and always renders as a real link (Req 15.2).
+const githubReal = isRealUrl(github);
+
+const heading = t(locale, 'contact.heading');
+const intro = t(locale, 'contact.intro');
+const ctaLabel = t(locale, 'contact.cta');
+const emailLabel = t(locale, 'contact.emailLabel');
+const linkedinLabel = t(locale, 'contact.linkedinLabel');
+const githubLabel = t(locale, 'contact.githubLabel');
+const socialsLabel = t(locale, 'contact.socialsLabel');
+const unavailable = t(locale, 'contact.unavailable');
+
+/** A single contact channel, resolved to a real link or an inert placeholder. */
+interface Channel {
+  label: string;
+  /** Display text (the raw value when real, a friendly note when inert). */
+  display: string;
+  /** The wire-able href, or null when the value is a placeholder. */
+  href: string | null;
+}
+
+const channels: Channel[] = [
+  {
+    label: emailLabel,
+    display: emailReal ? email : unavailable,
+    href: emailReal ? `mailto:${email}` : null,
+  },
+  {
+    label: linkedinLabel,
+    display: linkedinReal ? linkedin : unavailable,
+    href: linkedinReal ? linkedin : null,
+  },
+  {
+    label: githubLabel,
+    display: githubReal ? github : unavailable,
+    href: githubReal ? github : null,
+  },
+  ...socials.map((social) => {
+    const real = isRealSocial(social);
+    return {
+      label: social.label,
+      display: real ? social.url : unavailable,
+      href: real ? social.url : null,
+    };
+  }),
+];
+---
+
+<section id="contact" class="contact reveal" aria-labelledby="contact-heading">
+  <div class="contact__inner">
+    <h2 id="contact-heading" class="contact__heading">{heading}</h2>
+    <p class="contact__intro">{intro}</p>
+
+    <p class="contact__cta-row">
+      {
+        emailReal ? (
+          <a class="contact__cta" href={`mailto:${email}`} data-contact-cta>
+            {ctaLabel}
+          </a>
+        ) : (
+          <span class="contact__cta contact__cta--inert" aria-disabled="true" data-contact-cta>
+            {ctaLabel}
+          </span>
+        )
+      }
+    </p>
+
+    <ul class="contact__list" role="list">
+      {
+        channels.map((channel) => (
+          <li class="contact__item">
+            <span class="contact__label">{channel.label}</span>
+            {channel.href ? (
+              <a
+                class="contact__value"
+                href={channel.href}
+                rel="noopener noreferrer"
+                target={channel.href.startsWith('mailto:') ? undefined : '_blank'}
+              >
+                {channel.display}
+              </a>
+            ) : (
+              <span class="contact__value contact__value--inert" aria-disabled="true">
+                {channel.display}
+              </span>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .contact {
+    padding-block: var(--space-9, 4rem);
+  }
+
+  .contact__inner {
+    max-inline-size: var(--content-max-width);
+    margin-inline: auto;
+    padding-inline: var(--content-gutter);
+  }
+
+  .contact__heading {
+    margin: 0 0 var(--space-2, 0.5rem);
+    font-size: var(--text-2xl, 2rem);
+    font-weight: var(--weight-bold, 700);
+    letter-spacing: var(--tracking-tight, -0.01em);
+    color: var(--color-text);
+  }
+
+  .contact__intro {
+    max-inline-size: 60ch;
+    margin: 0 0 var(--space-6, 2rem);
+    font-size: var(--text-lg, 1.25rem);
+    line-height: var(--leading-relaxed, 1.6);
+    color: var(--color-text-muted);
+  }
+
+  .contact__cta-row {
+    margin: 0 0 var(--space-7, 2.5rem);
+  }
+
+  .contact__cta {
+    display: inline-block;
+    padding: var(--space-3, 0.75rem) var(--space-5, 1.5rem);
+    border-radius: var(--radius-md, 0.5rem);
+    background: var(--color-accent, #ff5a1f);
+    color: var(--color-on-accent, #fff);
+    font-size: var(--text-base, 1rem);
+    font-weight: var(--weight-medium, 500);
+    text-decoration: none;
+    transition: filter var(--motion-duration, 200ms) ease;
+  }
+
+  .contact__cta:hover,
+  .contact__cta:focus-visible {
+    filter: brightness(1.08);
+  }
+
+  /* Inert CTA/value: no link target, visually de-emphasized, not focusable. */
+  .contact__cta--inert {
+    background: var(--color-surface-muted, #d9d9d9);
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+    filter: none;
+  }
+
+  .contact__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-4, 1rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .contact__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1, 0.25rem);
+  }
+
+  .contact__label {
+    font-size: var(--text-sm, 0.875rem);
+    font-weight: var(--weight-medium, 500);
+    letter-spacing: var(--tracking-wide, 0.05em);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .contact__value {
+    font-size: var(--text-base, 1rem);
+    color: var(--color-text);
+    word-break: break-word;
+  }
+
+  a.contact__value {
+    color: var(--color-link, var(--color-secondary, #2e6bff));
+    text-decoration: none;
+  }
+
+  a.contact__value:hover,
+  a.contact__value:focus-visible {
+    text-decoration: underline;
+  }
+
+  .contact__value--inert {
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+  }
+</style>

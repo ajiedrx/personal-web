@@ -1,0 +1,36 @@
+---
+/**
+ * EN home page ('/') — Req 5.1.
+ *
+ * Composes all nine sections in the fixed canonical order inside BaseLayout,
+ * parameterized by locale (Req 3.1, 3.2, 3.3, 5.5). Each section owns its own
+ * anchor id and pulls every visible string through `t()`; this page only wires
+ * the locale through. The ID counterpart at `/id/` renders the same sections in
+ * the same order with `locale="id"`.
+ */
+import type { Locale } from '../i18n/locale';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../sections/Hero.astro';
+import About from '../sections/About.astro';
+import Expertise from '../sections/Expertise.astro';
+import Experience from '../sections/Experience.astro';
+import FeaturedProjects from '../sections/FeaturedProjects.astro';
+import Impact from '../sections/Impact.astro';
+import MentorshipEducation from '../sections/MentorshipEducation.astro';
+import Contact from '../sections/Contact.astro';
+import Footer from '../sections/Footer.astro';
+
+const locale: Locale = 'en';
+---
+
+<BaseLayout locale={locale}>
+  <Hero locale={locale} />
+  <About locale={locale} />
+  <Expertise locale={locale} />
+  <Experience locale={locale} />
+  <FeaturedProjects locale={locale} />
+  <Impact locale={locale} />
+  <MentorshipEducation locale={locale} />
+  <Contact locale={locale} />
+  <Footer locale={locale} />
+</BaseLayout>

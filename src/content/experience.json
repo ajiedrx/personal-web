@@ -1,0 +1,43 @@
+[
+  {
+    "role": "Full-Stack Mobile Engineer",
+    "organization": "SimpliDOTS",
+    "startDate": "2026-03",
+    "endDate": null,
+    "highlights": [
+      "Owned features end to end across the Android app and the .NET Core Web API, reducing integration friction and speeding up deployments."
+    ]
+  },
+  {
+    "role": "Mobile Developer",
+    "organization": "SimpliDOTS",
+    "startDate": "2023-05",
+    "endDate": "2026-02",
+    "highlights": [
+      "Modularized a monolith, cutting build times by up to 30%.",
+      "Optimized performance with Coroutines, eliminating 99% of ANRs.",
+      "Introduced a batch-processing strategy that eliminated 99% of Out Of Memory errors.",
+      "Wrote local unit tests and set up Azure Pipelines for CI."
+    ]
+  },
+  {
+    "role": "Mobile Developer",
+    "organization": "Astra International",
+    "startDate": "2021-10",
+    "endDate": "2023-04",
+    "highlights": [
+      "Served as Android Sprint Lead, guiding a team of 3 through a high-priority refactor (API migration).",
+      "Modernized the networking layer and mentored junior engineers."
+    ]
+  },
+  {
+    "role": "Software Developer Intern",
+    "organization": "Maulidan Games",
+    "startDate": "2020-01",
+    "endDate": "2020-04",
+    "highlights": [
+      "Applied OOP, design patterns, Clean Architecture, and code refactoring.",
+      "Delivered a Windows app (WPF), an Android app (Java), and Unity game development work."
+    ]
+  }
+]

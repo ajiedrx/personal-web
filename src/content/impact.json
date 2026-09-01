@@ -1,0 +1,30 @@
+[
+  {
+    "value": 4,
+    "suffix": "+",
+    "labelKey": "impact.items.years"
+  },
+  {
+    "value": 99,
+    "suffix": "%",
+    "labelKey": "impact.items.anrEliminated"
+  },
+  {
+    "value": 99,
+    "suffix": "%",
+    "labelKey": "impact.items.oomEliminated"
+  },
+  {
+    "value": 30,
+    "suffix": "%",
+    "labelKey": "impact.items.buildTimeReduced"
+  },
+  {
+    "value": 5,
+    "labelKey": "impact.items.teamsMentored"
+  },
+  {
+    "value": 3,
+    "labelKey": "impact.items.engineersLed"
+  }
+]

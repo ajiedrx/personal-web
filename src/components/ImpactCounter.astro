@@ -1,0 +1,171 @@
+---
+/**
+ * ImpactCounter.astro — a single animated impact counter island (Req 13).
+ *
+ * Presentation + behavior for one highlight value from the Content_Store. The
+ * parent `Impact.astro` section renders one island per `ImpactItem`, hydrated
+ * `client:visible` so the count-up animation only runs once the Impact section
+ * nears the viewport (design island table, Req 13.2).
+ *
+ * Behavior contract:
+ *  - The final value + optional suffix + localized label are always rendered
+ *    as static HTML, so the correct figure is present with zero JavaScript and
+ *    for search engines (Req 13.1, 13.4).
+ *  - On hydration, when the element enters the viewport the number animates
+ *    from a starting value up to its final value (Req 13.2).
+ *  - Under `prefers-reduced-motion: reduce`, the island no-ops: the final value
+ *    (already in the DOM) stays put with no count-up (Req 13.3). This mirrors
+ *    the reduced-motion display value resolved by `impactDisplayValue`.
+ *
+ * The localized unit/label resolves through the i18n helper `t()` in the parent
+ * and is passed in as a ready-to-render string.
+ *
+ * _Requirements: 13.1, 13.2, 13.3, 13.4_
+ */
+import type { ImpactItem } from '../content/types';
+
+interface Props {
+  /** The impact highlight to render. */
+  item: ImpactItem;
+  /** Localized unit/label for this highlight value (Req 13.4). */
+  label: string;
+}
+
+const { item, label } = Astro.props;
+
+const suffix = item.suffix ?? '';
+// Rendered final figure — present with no JS and under reduced motion (Req 13.3).
+const finalText = `${item.value}${suffix}`;
+---
+
+<div class="impact-counter" data-impact-counter data-target={item.value}>
+  <span class="impact-counter__value">
+    <span class="impact-counter__number" data-impact-number>{item.value}</span><span
+      class="impact-counter__suffix"
+      data-impact-suffix>{suffix}</span>
+  </span>
+  <span class="impact-counter__label">{label}</span>
+  {/* Static, no-JS / no-motion fallback figure (Req 13.1, 13.3). */}
+  <span class="impact-counter__sr-value">{finalText}</span>
+</div>
+
+<script>
+  // Duration of the count-up in milliseconds (Req 13.2).
+  const COUNT_UP_DURATION = 1600;
+  // Fraction of the counter that must be visible before animating.
+  const VISIBILITY_THRESHOLD = 0.4;
+
+  function prefersReducedMotion(): boolean {
+    return (
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    );
+  }
+
+  /** Ease-out so the count decelerates toward the final value. */
+  function easeOut(progress: number): number {
+    return 1 - Math.pow(1 - progress, 3);
+  }
+
+  function animateCounter(el: HTMLElement): void {
+    const numberEl = el.querySelector<HTMLElement>('[data-impact-number]');
+    const target = Number(el.dataset.target);
+    if (numberEl === null || Number.isNaN(target)) return;
+
+    // Preserve the number of decimals in the final value while counting.
+    const decimals = (String(target).split('.')[1] ?? '').length;
+    const start = performance.now();
+
+    function tick(now: number): void {
+      const progress = Math.min((now - start) / COUNT_UP_DURATION, 1);
+      const current = target * easeOut(progress);
+      numberEl.textContent = current.toFixed(decimals);
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        // Snap to the exact final value to avoid float drift (Req 13.2).
+        numberEl.textContent = String(target);
+      }
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  function initImpactCounters(): void {
+    const counters = document.querySelectorAll<HTMLElement>('[data-impact-counter]');
+    if (counters.length === 0) return;
+
+    // Reduced motion (Req 13.3): the final value is already in the DOM, so the
+    // island no-ops and skips both observing and animating.
+    if (prefersReducedMotion() || typeof IntersectionObserver !== 'function') {
+      return;
+    }
+
+    // Start each counter from zero, then count up when it enters the viewport.
+    counters.forEach((el) => {
+      const numberEl = el.querySelector<HTMLElement>('[data-impact-number]');
+      const target = Number(el.dataset.target);
+      if (numberEl !== null && !Number.isNaN(target)) {
+        const decimals = (String(target).split('.')[1] ?? '').length;
+        numberEl.textContent = (0).toFixed(decimals);
+      }
+    });
+
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            animateCounter(entry.target as HTMLElement);
+            // Count-up is one-shot: stop observing once it has run.
+            obs.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold: VISIBILITY_THRESHOLD },
+    );
+
+    counters.forEach((el) => observer.observe(el));
+  }
+
+  initImpactCounters();
+</script>
+
+<style>
+  .impact-counter {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2, 0.5rem);
+  }
+
+  .impact-counter__value {
+    display: inline-flex;
+    align-items: baseline;
+    font-size: var(--font-size-3xl, 2.5rem);
+    font-weight: var(--weight-bold, 700);
+    line-height: 1;
+    color: var(--color-accent, currentColor);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .impact-counter__suffix {
+    font-size: 0.7em;
+  }
+
+  .impact-counter__label {
+    font-size: var(--font-size-base, 1rem);
+    color: var(--color-text-muted, inherit);
+  }
+
+  /* Visually hidden accessible fallback figure. */
+  .impact-counter__sr-value {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>

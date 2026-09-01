@@ -1,0 +1,90 @@
+---
+/**
+ * BaseLayout.astro — the single wrapper for every page.
+ *
+ * Responsibilities (Req 5.4, 7.7, 7.8, 18.1, 20.1, 20.2, 20.4):
+ *  - Emit `<html lang>` per locale (`en` at `/`, `id` at `/id/`) — Req 5.4.
+ *  - Emit the `<head>` metadata (title, meta description, Open Graph tags, and
+ *    a Person JSON-LD block) built by `src/lib/seo.ts` — Req 20.1, 20.2, 20.4.
+ *  - Run a tiny inline pre-paint theme script that reads the stored theme (or
+ *    defaults to `dark`) and sets `data-theme` on `<html>` synchronously before
+ *    first paint, avoiding a flash of the wrong theme — Req 7.7, 7.8.
+ *  - Import the design-token / theming / global / motion styles layer.
+ *  - Provide exactly one `<main>` landmark and a `<slot />` for page content —
+ *    Req 18.1. Pages own the single `<h1>`; this layout emits none.
+ *  - Host the sticky Navbar (Task 11): anchor nav, scroll-spy, sticky/reveal,
+ *    and the Theme + Language toggles.
+ */
+import type { Locale } from '../i18n/locale';
+import { buildSeo } from '../lib/seo';
+import { withBase } from '../lib/withBase';
+import Navbar from '../components/Navbar.astro';
+import ScrollReveal from '../components/ScrollReveal.astro';
+
+// Design-token and theming CSS layer (Task 2). Imported here so every page
+// that uses BaseLayout ships the tokens, themes, base reset, and motion rules.
+import '../styles/tokens.css';
+import '../styles/themes.css';
+import '../styles/global.css';
+import '../styles/motion.css';
+
+interface Props {
+  /** Active locale; drives `<html lang>` and all per-locale SEO output. */
+  locale: Locale;
+  /** Optional page-title override; defaults to the locale's SEO title. */
+  title?: string;
+  /** Optional meta-description override; defaults to the locale's SEO description. */
+  description?: string;
+}
+
+const { locale, title, description } = Astro.props;
+
+const seo = buildSeo(locale);
+const pageTitle = title ?? seo.title;
+const pageDescription = description ?? seo.description;
+
+const faviconHref = withBase('favicon.svg');
+
+// Pre-paint theme init script. Kept as a small vanilla inline script (NOT an
+// island) so it executes in <head> before first paint. The 'theme' key mirrors
+// THEME_STORAGE_KEY in src/lib/storage.ts; a missing/invalid value or a storage
+// read that throws falls through to the 'dark' default (Req 7.7, 7.8).
+const themeInitScript = `(function(){try{var t=localStorage.getItem('theme');document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();`;
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href={faviconHref} />
+
+    <!-- Pre-paint theme init: runs synchronously before first paint (Req 7.7, 7.8). -->
+    <script is:inline set:html={themeInitScript}></script>
+
+    <!-- Per-locale SEO metadata (Req 20.1, 20.2, 20.4). -->
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <link rel="canonical" href={seo.canonical} />
+
+    {seo.ogTags.map((tag) => <meta property={tag.property} content={tag.content} />)}
+
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify(seo.personJsonLd)}
+    ></script>
+  </head>
+  <body>
+    <!-- Sticky primary navigation with scroll-spy + theme/language toggles (Task 11). -->
+    <Navbar locale={locale} />
+
+    <main>
+      <slot />
+    </main>
+
+    <!-- Scroll-reveal controller island: observes every `.reveal` element and
+         adds `is-revealed` as each enters the viewport (Req 17.1, 17.2). -->
+    <ScrollReveal />
+  </body>
+</html>

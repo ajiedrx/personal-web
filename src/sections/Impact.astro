@@ -1,0 +1,82 @@
+---
+/**
+ * Impact.astro — the Impact / Highlights Section (Req 13).
+ *
+ * Sources highlight values from the Content_Store (`src/content/impact.json`)
+ * and renders one `ImpactCounter` per value (Req 13.1). Each counter ships its
+ * own bundled `<script>` that self-initializes an IntersectionObserver, so its
+ * count-up animation runs only once the section nears the viewport (Req 13.2); under reduced
+ * motion the counter shows its final value immediately (Req 13.3). Each value's
+ * units/label is displayed alongside it (Req 13.4).
+ *
+ * All visible chrome strings — the section heading and every per-item label —
+ * resolve through the i18n helper `t()` (Req 5.3, 5.5), keeping the en/id key
+ * sets identical. The section owns the `#impact` anchor the Navbar links to and
+ * uses a semantic `<section>` + `<h2>` (the page owns the single `<h1>`).
+ *
+ * _Requirements: 13.1, 13.4_
+ */
+import type { Locale } from '../i18n/locale';
+import { t } from '../i18n/locale';
+import type { ImpactItem } from '../content/types';
+import impactData from '../content/impact.json';
+import ImpactCounter from '../components/ImpactCounter.astro';
+
+interface Props {
+  /** Active locale, used to resolve section chrome strings. */
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+
+// Highlight values sourced from the Content_Store (Req 13.1).
+const items = impactData as ImpactItem[];
+
+const heading = t(locale, 'impact.heading');
+---
+
+<section id="impact" class="impact reveal" aria-labelledby="impact-heading">
+  <div class="impact__inner">
+    <h2 id="impact-heading" class="impact__heading">{heading}</h2>
+
+    <ul class="impact__grid" role="list">
+      {
+        items.map((item) => (
+          <li class="impact__item">
+            <ImpactCounter item={item} label={t(locale, item.labelKey)} />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .impact {
+    padding-block: var(--space-2xl, 4rem);
+  }
+
+  .impact__inner {
+    max-inline-size: var(--content-max-width, 72rem);
+    margin-inline: auto;
+    padding-inline: var(--content-gutter);
+  }
+
+  .impact__heading {
+    margin: 0 0 var(--space-lg, 1.5rem);
+    font-size: var(--font-size-2xl, 1.75rem);
+  }
+
+  .impact__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    gap: var(--space-xl, 2rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .impact__item {
+    margin: 0;
+  }
+</style>

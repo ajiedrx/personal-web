@@ -1,0 +1,141 @@
+[
+  {
+    "title": "Associate Cloud Engineer",
+    "issuer": "Google Cloud",
+    "issuedDate": "2026",
+    "skills": ["Google Cloud", "Compute Engine", "Kubernetes", "Cloud Networking"],
+    "featured": true,
+    "status": "active"
+  },
+  {
+    "title": "iOS Developer Expert",
+    "issuer": "Dicoding",
+    "issuedDate": "2024",
+    "expiryDate": "2027",
+    "skills": ["Swift", "SwiftUI", "Clean Architecture", "Reactive Programming"],
+    "featured": true,
+    "status": "active"
+  },
+  {
+    "title": "Android Developer Expert",
+    "issuer": "Dicoding",
+    "issuedDate": "2022",
+    "expiryDate": "2025",
+    "skills": ["Kotlin", "Jetpack Compose", "Clean Architecture", "Modularization"],
+    "featured": true,
+    "status": "active"
+  },
+  {
+    "title": "Bangkit Academy Graduate — Mobile Development",
+    "issuer": "Bangkit Academy (Google, GoTo, Traveloka)",
+    "issuedDate": "2021",
+    "skills": ["Android", "Kotlin", "TensorFlow Lite", "Machine Learning"],
+    "featured": true,
+    "status": "active"
+  },
+  {
+    "title": "Menjadi Android Developer Expert",
+    "issuer": "Dicoding",
+    "issuedDate": "2021",
+    "expiryDate": "2024",
+    "featured": false,
+    "status": "expired"
+  },
+  {
+    "title": "Belajar Fundamental Aplikasi Android",
+    "issuer": "Dicoding",
+    "issuedDate": "2021",
+    "expiryDate": "2024",
+    "featured": false,
+    "status": "expired"
+  },
+  {
+    "title": "Belajar Membuat Aplikasi Android untuk Pemula",
+    "issuer": "Dicoding",
+    "issuedDate": "2020",
+    "expiryDate": "2023",
+    "featured": false,
+    "status": "expired"
+  },
+  {
+    "title": "Memulai Pemrograman dengan Kotlin",
+    "issuer": "Dicoding",
+    "issuedDate": "2020",
+    "expiryDate": "2023",
+    "featured": false,
+    "status": "expired"
+  },
+  {
+    "title": "Belajar Prinsip Pemrograman SOLID",
+    "issuer": "Dicoding",
+    "issuedDate": "2021",
+    "expiryDate": "2024",
+    "featured": false,
+    "status": "expired"
+  },
+  {
+    "title": "Belajar Dasar Pemrograman JavaScript",
+    "issuer": "Dicoding",
+    "issuedDate": "2020",
+    "expiryDate": "2023",
+    "featured": false,
+    "status": "expired"
+  },
+  {
+    "title": "Belajar Membuat Aplikasi Back-End untuk Pemula",
+    "issuer": "Dicoding",
+    "issuedDate": "2021",
+    "expiryDate": "2024",
+    "featured": false,
+    "status": "expired"
+  },
+  {
+    "title": "Belajar Dasar Git dengan GitHub",
+    "issuer": "Dicoding",
+    "issuedDate": "2020",
+    "expiryDate": "2023",
+    "featured": false,
+    "status": "expired"
+  },
+  {
+    "title": "Belajar Fundamental Aplikasi iOS",
+    "issuer": "Dicoding",
+    "issuedDate": "2023",
+    "expiryDate": "2026",
+    "skills": ["Swift", "UIKit", "SwiftUI"],
+    "featured": false,
+    "status": "active"
+  },
+  {
+    "title": "Belajar Membuat Aplikasi iOS untuk Pemula",
+    "issuer": "Dicoding",
+    "issuedDate": "2023",
+    "expiryDate": "2026",
+    "featured": false,
+    "status": "active"
+  },
+  {
+    "title": "Architecting on AWS",
+    "issuer": "Amazon Web Services",
+    "issuedDate": "2022",
+    "featured": false,
+    "status": "active"
+  },
+  {
+    "title": "Belajar Dasar AI",
+    "issuer": "Dicoding",
+    "issuedDate": "2021",
+    "expiryDate": "2024",
+    "featured": false,
+    "status": "expired"
+  },
+  {
+    "title": "Belajar Pengembangan Machine Learning",
+    "issuer": "Dicoding",
+    "issuedDate": "2021",
+    "expiryDate": "2024",
+    "skills": ["TensorFlow", "Machine Learning"],
+    "featured": false,
+    "status": "expired"
+  }
+]

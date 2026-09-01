@@ -1,0 +1,42 @@
+[
+  {
+    "category": "core-mobile",
+    "labelKey": "expertise.categories.core-mobile",
+    "skills": [
+      "Kotlin (Expert)",
+      "Jetpack Compose",
+      "Coroutines",
+      "Clean Architecture",
+      "SOLID"
+    ]
+  },
+  {
+    "category": "full-stack",
+    "labelKey": "expertise.categories.full-stack",
+    "skills": [
+      ".NET",
+      "Web API",
+      "SQL",
+      "Azure Pipelines"
+    ]
+  },
+  {
+    "category": "modern-tech",
+    "labelKey": "expertise.categories.modern-tech",
+    "skills": [
+      "Kotlin Multiplatform (KMP)",
+      "SwiftUI",
+      "AI-Driven Development"
+    ]
+  },
+  {
+    "category": "quality",
+    "labelKey": "expertise.categories.quality",
+    "skills": [
+      "Static Code Analysis",
+      "Performance Optimization",
+      "Unit Testing",
+      "UI Testing"
+    ]
+  }
+]

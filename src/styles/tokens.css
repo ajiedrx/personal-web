@@ -1,0 +1,137 @@
+/**
+ * Design Tokens — personal-portfolio-web
+ * Requirements: 7.1 (theme system), 18.6 (WCAG AA contrast)
+ *
+ * This file defines the *primitive* design tokens (raw palette, spacing scale,
+ * type scale, radii, etc.) as CSS custom properties. Theme-specific *semantic*
+ * token values (which primitives map to text / background / accents per theme)
+ * live in `themes.css`, keyed off [data-theme] on <html>.
+ *
+ * Visual direction: editorial / brutalist-refined with a near-black,
+ * off-white, and gray neutral palette; orange (#FF5A1F) signature accent;
+ * blue (#2E6BFF) secondary accent.
+ */
+
+:root {
+  /* ----------------------------------------------------------------------
+   * Primitive color palette (theme-agnostic raw values)
+   * -------------------------------------------------------------------- */
+
+  /* Neutrals — near-black / off-white / gray scale */
+  --palette-black: #0b0b0d; /* dominant near-black */
+  --palette-gray-950: #131316;
+  --palette-gray-900: #1a1a1e;
+  --palette-gray-800: #26262b;
+  --palette-gray-700: #33333a;
+  --palette-gray-600: #55555a;
+  --palette-gray-500: #6f6f75;
+  --palette-gray-400: #9a9aa0;
+  --palette-gray-300: #b8b8bc;
+  --palette-gray-200: #d6d6d8;
+  --palette-gray-100: #ececec;
+  --palette-gray-050: #f0f0ee;
+  --palette-white: #f7f7f5; /* off-white */
+  --palette-pure-white: #ffffff;
+
+  /* Signature accent — orange */
+  --palette-orange: #ff5a1f; /* brand orange (non-text / UI surfaces) */
+  --palette-orange-bright: #ff7a45; /* brightened for AA text on dark bg */
+  --palette-orange-deep: #c43e00; /* darkened for AA text on light bg */
+
+  /* Secondary accent — blue */
+  --palette-blue: #2e6bff; /* brand blue (non-text / UI surfaces) */
+  --palette-blue-bright: #7aa5ff; /* brightened for AA text on dark bg */
+  --palette-blue-deep: #1b4fd6; /* darkened for AA text on light bg */
+
+  /* ----------------------------------------------------------------------
+   * Spacing scale (8px base, mobile-first) — Req 21
+   * -------------------------------------------------------------------- */
+  --space-0: 0;
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.5rem; /* 24px */
+  --space-6: 2rem; /* 32px */
+  --space-7: 3rem; /* 48px */
+  --space-8: 4rem; /* 64px */
+  --space-9: 6rem; /* 96px */
+  --space-10: 8rem; /* 128px */
+
+  /* Section rhythm */
+  --section-padding-block: clamp(var(--space-7), 8vw, var(--space-10));
+  --content-max-width: 72rem; /* 1152px reading/layout max */
+  --content-gutter: clamp(var(--space-4), 5vw, var(--space-7));
+
+  /* ----------------------------------------------------------------------
+   * Typography scale
+   * -------------------------------------------------------------------- */
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-mono:
+    ui-monospace, "SFMono-Regular", "JetBrains Mono", "Fira Code", Menlo,
+    Consolas, monospace;
+
+  /* Fluid type scale (mobile-first, clamped) */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: clamp(1.25rem, 2.5vw, 1.5rem);
+  --text-2xl: clamp(1.5rem, 3.5vw, 2rem);
+  --text-3xl: clamp(2rem, 5vw, 2.75rem);
+  --text-4xl: clamp(2.5rem, 7vw, 4rem);
+  --text-hero: clamp(2.75rem, 9vw, 5.5rem);
+
+  /* Font weights */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-black: 900;
+
+  /* Line heights */
+  --leading-tight: 1.1;
+  --leading-snug: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  /* Letter spacing */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+  --tracking-wider: 0.12em;
+
+  /* Large-text threshold reference (WCAG): >=18.66px bold or >=24px regular.
+     Text tokens at or above --text-xl qualify for the 3:1 large-text rule. */
+
+  /* ----------------------------------------------------------------------
+   * Radii, borders, shadows, z-index, motion timing
+   * -------------------------------------------------------------------- */
+  --radius-none: 0;
+  --radius-sm: 0.125rem; /* 2px — brutalist-refined: mostly sharp */
+  --radius-md: 0.375rem;
+  --radius-lg: 0.75rem;
+  --radius-pill: 999px;
+
+  --border-width: 1px;
+  --border-width-thick: 2px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.16);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.22);
+
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 100; /* navbar */
+  --z-overlay: 1000; /* mobile nav / dialogs */
+
+  /* Motion timing (used by motion.css; gated by prefers-reduced-motion) */
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --duration-theme: 500ms; /* theme ripple within 200–600ms budget (Req 7.2, 7.3) */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}

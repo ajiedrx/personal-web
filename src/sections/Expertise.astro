@@ -1,0 +1,105 @@
+---
+/**
+ * Expertise.astro — the skills / "Expertise" Section (Req 10).
+ *
+ * Presents the owner's skills grouped into the four fixed categories
+ * (Core Mobile, Full-Stack, Modern Tech, Quality) in a stable order
+ * (Req 10.1). The skill entries for each category are structured,
+ * language-neutral data sourced from the Content_Store
+ * (`src/content/skills.json`) and rendered within their assigned category
+ * group by the reusable `SkillGroup` component (Req 10.2, 10.3). Each group's
+ * category label is localized through the i18n helper `t()`.
+ *
+ * The section owns the `#expertise` anchor the Navbar links to and uses a
+ * semantic `<section>` + `<h2>` (the page owns the single `<h1>`) — Req 3.3,
+ * 18.1. It opts into scroll-reveal via the `reveal` class (Req 17.1).
+ *
+ * _Requirements: 10.1, 10.2, 10.3_
+ */
+import type { Locale } from '../i18n/locale';
+import { t } from '../i18n/locale';
+import type { SkillCategory, SkillGroup } from '../content/types';
+import skillsData from '../content/skills.json';
+import SkillGroupCard from '../components/SkillGroup.astro';
+
+interface Props {
+  /** Active locale, used to resolve section chrome and category labels. */
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+
+/**
+ * The four fixed categories, in the order they must be presented (Req 10.1).
+ * Ordering the render off this list — rather than the raw JSON order — keeps
+ * the section stable even if the Content_Store file is reordered.
+ */
+const CATEGORY_ORDER: readonly SkillCategory[] = [
+  'core-mobile',
+  'full-stack',
+  'modern-tech',
+  'quality',
+];
+
+// Content_Store skill groups, keyed by category for stable, ordered lookup.
+const groupsByCategory = new Map<SkillCategory, SkillGroup>(
+  (skillsData as SkillGroup[]).map((group) => [group.category, group]),
+);
+
+// Present exactly the fixed categories, in order, skipping any absent from
+// the Content_Store so the section never renders an empty group.
+const groups = CATEGORY_ORDER.map((category) => groupsByCategory.get(category)).filter(
+  (group): group is SkillGroup => group !== undefined,
+);
+
+const heading = t(locale, 'expertise.heading');
+---
+
+<section id="expertise" class="expertise reveal" aria-labelledby="expertise-heading">
+  <div class="expertise__inner">
+    <h2 id="expertise-heading" class="expertise__heading">{heading}</h2>
+    <div class="expertise__groups">
+      {groups.map((group) => <SkillGroupCard group={group} locale={locale} />)}
+    </div>
+  </div>
+</section>
+
+<style>
+  .expertise {
+    padding-block: var(--space-9, 4rem);
+  }
+
+  .expertise__inner {
+    max-inline-size: var(--content-max-width);
+    margin-inline: auto;
+    padding-inline: var(--content-gutter);
+  }
+
+  .expertise__heading {
+    margin: 0 0 var(--space-6, 2rem);
+    font-size: var(--text-2xl, 2rem);
+    font-weight: var(--weight-bold, 700);
+    letter-spacing: var(--tracking-tight, -0.02em);
+    color: var(--color-text);
+  }
+
+  .expertise__groups {
+    display: grid;
+    gap: var(--space-5, 1.5rem);
+    grid-template-columns: 1fr;
+  }
+
+  /* Two columns from the small-tablet breakpoint up (Req 21.2). */
+  @media (min-width: 40rem) {
+    .expertise__groups {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Four columns on wide viewports, one per fixed category (Req 10.1, 21.2). */
+  @media (min-width: 64rem) {
+    .expertise__groups {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>
