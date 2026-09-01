@@ -99,6 +99,26 @@ html[data-theme-switching] *::after {
     box-shadow var(--motion-duration-theme, 300ms) var(--motion-ease, ease) !important;
 }
 
+/*
+ * Seamless navbar (fix for the navbar/content seam + hero "flash").
+ *
+ * The sticky header's background is a translucent `color-mix(... 88%,
+ * transparent)` and it sits over a live `backdrop-filter: blur()`. If the
+ * header *also* transitions its own background during the switch, the browser
+ * interpolates that color-mix in a different color space (oklab) than the body
+ * (rgb), so the header tracks a different curve and a seam appears at its edge.
+ *
+ * Fix: don't transition the header's own background/border at all during the
+ * switch — snap them to the new theme instantly. Because the header is
+ * translucent over a live blur, the *body* fading behind it shows through and
+ * drives the header's visible color, keeping it perfectly in sync with the
+ * content on the body's own rgb curve. No seam, no alpha wobble, no end pop
+ * (the header's own appearance never animated, so there's nothing to restore).
+ */
+html[data-theme-switching] .site-header {
+  transition: none !important;
+}
+
 /* ---------------------------------------------------------------------------
  * Kinetic hero visual (Req 8.4)
  * ------------------------------------------------------------------------- */
