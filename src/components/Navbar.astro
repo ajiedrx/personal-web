@@ -106,9 +106,13 @@ const primaryLabel = t(locale, 'nav.primaryLabel');
     background: var(--color-bg);
     border-block-end: var(--border-width) solid transparent;
     transition:
+      /* Scroll hide/reveal uses the base duration. */
       transform var(--duration-base) var(--ease-standard),
-      border-color var(--duration-base) var(--ease-standard),
-      background-color var(--duration-base) var(--ease-standard);
+      /* Color props use the *theme* duration so the header crossfades in exact
+         lockstep with the page content (a mismatched duration made the navbar
+         lag the content — a visible separation at its edge during the switch). */
+      border-color var(--duration-theme) var(--ease-standard),
+      background-color var(--duration-theme) var(--ease-standard);
   }
 
   /* Sticky/reveal-on-scroll (Req 4.4): the .is-scrolled state adds a divider,
