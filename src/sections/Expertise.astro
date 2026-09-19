@@ -83,23 +83,26 @@ const heading = t(locale, 'expertise.heading');
     color: var(--color-text);
   }
 
+  /*
+   * Auto-fit grid rather than a fixed 1→2→4 column count. Groups have very
+   * different lengths (e.g. "Modern Tech" has long, wrapping skill names while
+   * "Core Mobile" has six short ones); forcing four equal columns squeezed the
+   * long groups into narrow cards where pills wrapped awkwardly. `auto-fit` +
+   * `minmax` lets each card claim a comfortable minimum width and flow into as
+   * many columns as fit — typically 2–3 on desktop — so long skills wrap
+   * cleanly and short groups don't leave the row looking like rigid rects.
+   * `align-items: start` lets each card be only as tall as its own content.
+   * Source order is preserved, so the fixed category order (Req 10.1) holds.
+   */
   .expertise__groups {
     display: grid;
     gap: var(--space-5, 1.5rem);
-    grid-template-columns: 1fr;
-  }
-
-  /* Two columns from the small-tablet breakpoint up (Req 21.2). */
-  @media (min-width: 40rem) {
-    .expertise__groups {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  /* Four columns on wide viewports, one per fixed category (Req 10.1, 21.2). */
-  @media (min-width: 64rem) {
-    .expertise__groups {
-      grid-template-columns: repeat(4, 1fr);
-    }
+    /* A wider minimum settles into a balanced 2-column layout for the four
+       groups on desktop (a 2x2 grid rather than 3 + a lonely 4th), and each
+       card is wide enough that most skills fit on one line. It still collapses
+       to a single column on narrow screens. `align-items: start` keeps every
+       card only as tall as its own content. */
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr));
+    align-items: start;
   }
 </style>
