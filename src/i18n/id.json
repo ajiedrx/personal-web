@@ -18,10 +18,11 @@
   },
   "about": {
     "heading": "Tentang",
-    "narrative": "Full-Stack Mobile Engineer dengan pengalaman 4+ tahun membangun aplikasi Android native dan lintas platform. Saya ahli di Kotlin, Clean Architecture, dan UI deklaratif (Jetpack Compose, SwiftUI), dengan rekam jejak nyata mendorong peningkatan performa, memimpin refactor teknis, dan membimbing engineer. Kini saya melebarkan sayap ke arsitektur multi-platform (KMP) dan alur kerja berbasis AI.",
+    "narrative": "Full-Stack Mobile Engineer dengan pengalaman 5+ tahun membangun aplikasi Android native dan lintas platform. Saya ahli di Kotlin, Clean Architecture, dan UI deklaratif (Jetpack Compose, SwiftUI), dengan rekam jejak nyata mengembangkan fitur, mendorong peningkatan performa, memimpin refactor teknis, dan membimbing engineer. Kini saya melebarkan sayap ke arsitektur multi-platform (KMP) dan alur kerja berbasis AI.",
     "location": "Surabaya, Indonesia",
     "locationLabel": "Berbasis di",
-    "availabilityLabel": "Ketersediaan"
+    "availabilityLabel": "Ketersediaan",
+    "languageLabel": "Bahasa"
   },
   "expertise": {
     "heading": "Keahlian",

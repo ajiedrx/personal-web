@@ -32,13 +32,14 @@ const { locale } = Astro.props;
 
 // Availability is structured Content_Store data (Req 9.3, 22.4).
 const profile = profileData as Profile;
-const { availability } = profile;
+const { availability, language } = profile;
 
 const heading = t(locale, 'about.heading');
 const narrative = t(locale, 'about.narrative');
 const location = t(locale, 'about.location');
 const locationLabel = t(locale, 'about.locationLabel');
 const availabilityLabel = t(locale, 'about.availabilityLabel');
+const languageLabel = t(locale, 'about.languageLabel')
 ---
 
 <section id="about" class="about" aria-labelledby="about-heading">
@@ -48,6 +49,10 @@ const availabilityLabel = t(locale, 'about.availabilityLabel');
     <p class="about__narrative">{narrative}</p>
 
     <dl class="about__meta">
+      <div class="about__meta-item">
+        <dt class="about__meta-term">{languageLabel}</dt>
+        <dd class="about__meta-value" data-about-language>{language}</dd>
+      </div>
       <div class="about__meta-item">
         <dt class="about__meta-term">{locationLabel}</dt>
         <dd class="about__meta-value" data-about-location>{location}</dd>
@@ -80,8 +85,10 @@ const availabilityLabel = t(locale, 'about.availabilityLabel');
   }
 
   .about__narrative {
-    max-inline-size: 60ch;
+    max-inline-size: 100%;
     margin: 0;
+    text-align: justify;
+    text-justify: auto;
     font-size: var(--text-lg, 1.25rem);
     line-height: var(--leading-relaxed, 1.6);
     color: var(--color-text);

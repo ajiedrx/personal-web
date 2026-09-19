@@ -7,6 +7,7 @@ export interface Profile {
   name: string; // owner name (Req 8.1, 16.1)
   role: string; // "Full-Stack Mobile Engineer"
   location: string; // "Surabaya, Indonesia" (Req 9.2)
+  language: string;
   availability: string; // availability status (Req 9.3, 22.4)
   contact: ContactInfo;
 }

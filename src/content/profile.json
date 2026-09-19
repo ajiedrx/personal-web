@@ -1,18 +1,17 @@
 {
-  "name": "Ajie Dibyo R.",
+  "name": "Ajie Dibyo Respati",
   "role": "Full-Stack Mobile Engineer",
-  "location": "Surabaya, Indonesia",
+  "location": "Surabaya, Indonesia (Remote Ready)",
+  "language": "Bahasa Indonesia (native), English (conversational)",
   "availability": "Open to work — full-time & collaborations",
   "contact": {
-    "email": "hello@example.com",
-    "linkedin": "https://www.linkedin.com/in/placeholder",
+    "email": "ajiedibyor@gmail.com",
+    "linkedin": "https://www.linkedin.com/in/ajiedr",
     "github": "https://github.com/ajiedrx",
     "socials": [
-      {
-        "label": "Twitter / X",
-        "url": "https://twitter.com/placeholder",
-        "isPlaceholder": true
-      }
+      
     ]
   }
 }
+
+

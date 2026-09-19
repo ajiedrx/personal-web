@@ -23,14 +23,23 @@
     "expiryDate": "2025",
     "skills": ["Kotlin", "Jetpack Compose", "Clean Architecture", "Modularization"],
     "featured": true,
-    "status": "active"
+    "status": "expired"
+  },
+  {
+    "title": "Associate Android Developer",
+    "issuer": "Google",
+    "issuedDate": "2021",
+    "expiryDate": "2024",
+    "skills": ["Kotlin", "Jetpack Compose", "Clean Architecture", "Modularization"],
+    "featured": true,
+    "status": "expired"
   },
   {
     "title": "Bangkit Academy Graduate — Mobile Development",
     "issuer": "Bangkit Academy (Google, GoTo, Traveloka)",
     "issuedDate": "2021",
     "skills": ["Android", "Kotlin", "TensorFlow Lite", "Machine Learning"],
-    "featured": true,
+    "featured": false,
     "status": "active"
   },
   {

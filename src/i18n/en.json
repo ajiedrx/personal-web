@@ -18,10 +18,11 @@
   },
   "about": {
     "heading": "About",
-    "narrative": "Full-Stack Mobile Engineer with 4+ years of experience building native Android and cross-platform apps. I specialize in Kotlin, Clean Architecture, and declarative UI (Jetpack Compose, SwiftUI), with a track record of driving real performance gains, leading technical refactors, and mentoring engineers. I'm now expanding into multi-platform architecture (KMP) and AI-driven workflows.",
+    "narrative": "Full-Stack Mobile Engineer with 5+ years of experience building native Android and cross-platform apps. I specialize in Kotlin, Clean Architecture, and declarative UI (Jetpack Compose, SwiftUI), with a track record of delivering features, driving real performance gains, leading technical refactors, and mentoring engineers. I'm now expanding into multi-platform architecture (KMP) and AI-driven workflows.",
     "location": "Surabaya, Indonesia",
     "locationLabel": "Based in",
-    "availabilityLabel": "Availability"
+    "availabilityLabel": "Availability",
+    "languageLabel": "Language"
   },
   "expertise": {
     "heading": "Expertise",

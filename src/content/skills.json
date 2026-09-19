@@ -3,9 +3,10 @@
     "category": "core-mobile",
     "labelKey": "expertise.categories.core-mobile",
     "skills": [
-      "Kotlin (Expert)",
+      "Kotlin",
+      "Asynchronous (Coroutines)",
+      "Reactive (Flow)",
       "Jetpack Compose",
-      "Coroutines",
       "Clean Architecture",
       "SOLID"
     ]
@@ -15,8 +16,10 @@
     "labelKey": "expertise.categories.full-stack",
     "skills": [
       ".NET",
-      "Web API",
+      "Entity Framework",
       "SQL",
+      "AWS SQS",
+      "AWS Lambda",
       "Azure Pipelines"
     ]
   },
@@ -25,8 +28,8 @@
     "labelKey": "expertise.categories.modern-tech",
     "skills": [
       "Kotlin Multiplatform (KMP)",
-      "SwiftUI",
-      "AI-Driven Development"
+      "Native iOS Development (primarily SwiftUI) with Swift",
+      "Google Cloud Platform (Google Certified)"
     ]
   },
   {
@@ -34,9 +37,8 @@
     "labelKey": "expertise.categories.quality",
     "skills": [
       "Static Code Analysis",
-      "Performance Optimization",
-      "Unit Testing",
-      "UI Testing"
+      "Automated UI Tests (Espresso, Maestro)",
+      "Unit Tests"
     ]
   }
 ]
