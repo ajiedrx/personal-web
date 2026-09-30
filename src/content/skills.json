@@ -40,5 +40,18 @@
       "Automated UI Tests (Espresso, Maestro)",
       "Unit Tests"
     ]
+  },
+  {
+    "category": "domain",
+    "labelKey": "expertise.categories.domain",
+    "skills": [
+      "Real-Time Location Tracking",
+      "Offline-First Synchronization",
+      "Field Check-In / Check-Out Workflows",
+      "Transaction & Monetary Processing",
+      "Media & Image Processing",
+      "Data Visualization",
+      "Product Catalog & Inventory"
+    ]
   }
 ]

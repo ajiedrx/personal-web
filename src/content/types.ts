@@ -26,7 +26,12 @@ export interface SocialLink {
 }
 
 // ---- Skills (Req 10) ----
-export type SkillCategory = 'core-mobile' | 'full-stack' | 'modern-tech' | 'quality';
+export type SkillCategory =
+  | 'core-mobile'
+  | 'full-stack'
+  | 'modern-tech'
+  | 'quality'
+  | 'domain';
 
 export interface SkillGroup {
   category: SkillCategory; // one of the four fixed categories (Req 10.1)
@@ -72,6 +77,15 @@ export interface EducationEntry {
   organization: string;
   year: string;
 } // (Req 14.2, 14.3)
+
+// ---- Awards & recognition ----
+export interface AwardEntry {
+  title: string; // award name, e.g. "Employee of the Year 2026"
+  issuer: string; // awarding organization, e.g. "SimpliDOTS"
+  date: string; // ISO 'YYYY-MM' or 'YYYY'; year shown by default
+  description?: string; // optional short context / citation
+  credentialUrl?: string; // optional verification/announcement link
+}
 
 // ---- Certification (Req 14.4-14.7, 22.2) ----
 export type CertStatus = 'active' | 'expired';

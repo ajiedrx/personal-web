@@ -17,7 +17,7 @@ import { LOCALES, type Locale } from '../i18n/locale';
 // (not the individual sections) is what proves the canonical order is actually
 // wired in the pages, and that both locales wire the identical order.
 //
-// The nine sections in their fixed canonical order (Req 3.2). Eight are
+// The ten sections in their fixed canonical order (Req 3.2). Nine are
 // navigable `<section>` landmarks that each own a unique anchor id (Req 3.3);
 // the closing Footer is a `<footer>` landmark with no navigable anchor id, so
 // it is represented here as a positional marker rather than an anchor.
@@ -28,6 +28,7 @@ const NAVIGABLE_SECTION_IDS = [
   'experience',
   'projects',
   'impact',
+  'awards',
   'education',
   'contact',
 ] as const;

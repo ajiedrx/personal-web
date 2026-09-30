@@ -5,6 +5,7 @@
     "experience": "Experience",
     "projects": "Projects",
     "impact": "Impact",
+    "awards": "Awards",
     "education": "Education",
     "contact": "Contact",
     "openMenu": "Open navigation menu",
@@ -29,8 +30,9 @@
     "categories": {
       "core-mobile": "Core Mobile",
       "full-stack": "Full-Stack",
-      "modern-tech": "Modern Tech",
-      "quality": "Quality"
+      "modern-tech": "Beyond Android",
+      "quality": "Quality",
+      "domain": "Domain Expertise"
     }
   },
   "experience": {
@@ -54,6 +56,10 @@
       "teamsMentored": "Teams mentored as Capstone Project Advisor",
       "engineersLed": "Engineers led as Android Sprint Lead"
     }
+  },
+  "awards": {
+    "heading": "Awards & Recognition",
+    "verifyLabel": "View credential"
   },
   "education": {
     "heading": "Mentorship & Education",

@@ -35,6 +35,7 @@ const NAV_SECTION_IDS = [
   'experience',
   'projects',
   'impact',
+  'awards',
   'education',
   'contact',
 ] as const;

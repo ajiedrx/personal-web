@@ -1,0 +1,208 @@
+---
+/**
+ * Awards.astro — the Awards & Recognition Section.
+ *
+ * Renders award records sourced from the Content_Store
+ * (`src/content/awards.json`) as a responsive grid of cards. Each card shows
+ * the award title, the awarding organization, and the year, plus an optional
+ * short description and an optional verification link when present in the data.
+ *
+ * All visible chrome strings resolve through the i18n helper `t()`, keeping the
+ * en/id key sets identical. The section owns the `#awards` anchor the Navbar
+ * links to and uses a semantic `<section>` + `<h2>`/`<h3>` headings (the page
+ * owns the single `<h1>`).
+ */
+import type { Locale } from '../i18n/locale';
+import { t } from '../i18n/locale';
+import type { AwardEntry } from '../content/types';
+import awardsData from '../content/awards.json';
+
+interface Props {
+  /** Active locale, used to resolve section chrome strings. */
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+
+const awards = awardsData as AwardEntry[];
+
+/** Extract the year from an ISO 'YYYY-MM' / 'YYYY' date. */
+function yearOf(value: string): string {
+  const match = /^(\d{4})/.exec(value.trim());
+  return match ? match[1]! : value;
+}
+
+const awardViews = awards.map((award) => ({
+  award,
+  year: yearOf(award.date),
+}));
+
+const heading = t(locale, 'awards.heading');
+const verifyLabel = t(locale, 'awards.verifyLabel');
+---
+
+{
+  awardViews.length > 0 && (
+    <section id="awards" class="awards reveal" aria-labelledby="awards-heading">
+      <div class="awards__inner">
+        <h2 id="awards-heading" class="awards__heading">
+          {heading}
+        </h2>
+
+        <ul class="awards__grid" role="list">
+          {awardViews.map(({ award, year }) => (
+            <li class="awards__card">
+              <span class="awards__icon" aria-hidden="true">
+                {/* Trophy — signature visual for the section. */}
+                <svg
+                  viewBox="0 0 24 24"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M6 4h12v4a6 6 0 0 1-12 0V4Z" />
+                  <path d="M6 6H4a2 2 0 0 0 2 4" />
+                  <path d="M18 6h2a2 2 0 0 1-2 4" />
+                  <path d="M12 14v3" />
+                  <path d="M9 20h6" />
+                  <path d="M10 17h4l-.5 3h-3l-.5-3Z" />
+                </svg>
+              </span>
+              <div class="awards__body">
+                <h3 class="awards__title">{award.title}</h3>
+                <p class="awards__meta">
+                  <span class="awards__issuer">{award.issuer}</span>
+                  <span class="awards__year">{year}</span>
+                </p>
+                {award.description !== undefined && award.description.trim().length > 0 && (
+                  <p class="awards__description">{award.description}</p>
+                )}
+                {award.credentialUrl !== undefined && award.credentialUrl.trim().length > 0 && (
+                  <a
+                    class="awards__link"
+                    href={award.credentialUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {verifyLabel}
+                  </a>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .awards {
+    padding-block: var(--space-2xl, 4rem);
+  }
+
+  .awards__inner {
+    max-inline-size: var(--content-max-width, 72rem);
+    margin-inline: auto;
+    padding-inline: var(--content-gutter);
+  }
+
+  .awards__heading {
+    margin: 0 0 var(--space-lg, 1.5rem);
+    font-size: var(--font-size-2xl, 1.75rem);
+  }
+
+  .awards__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-lg, 1.5rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .awards__card {
+    display: flex;
+    gap: var(--space-md, 1rem);
+    margin: 0;
+    padding: var(--space-lg, 1.5rem);
+    border: var(--border-width, 1px) solid var(--color-border);
+    border-radius: var(--radius-lg, 0.75rem);
+    background: var(--color-surface);
+    /* Long unbroken tokens in content-driven titles must never force
+       horizontal overflow at ~320px viewports. */
+    min-inline-size: 0;
+  }
+
+  .awards__icon {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    border-radius: var(--radius-md, 0.5rem);
+    color: var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  }
+
+  .awards__body {
+    min-inline-size: 0;
+  }
+
+  .awards__title {
+    margin: 0;
+    font-size: var(--font-size-lg, 1.125rem);
+    font-weight: var(--weight-semibold, 600);
+    color: var(--color-text);
+    overflow-wrap: anywhere;
+  }
+
+  .awards__meta {
+    margin: 0.25rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: var(--font-size-sm, 0.875rem);
+    color: var(--color-text-muted, inherit);
+    overflow-wrap: anywhere;
+  }
+
+  .awards__year::before {
+    content: '·';
+    margin-inline-end: 0.5rem;
+  }
+
+  .awards__description {
+    margin: 0.5rem 0 0;
+    font-size: var(--font-size-sm, 0.875rem);
+    color: var(--color-text-muted, inherit);
+    overflow-wrap: anywhere;
+  }
+
+  .awards__link {
+    display: inline-block;
+    margin-block-start: 0.625rem;
+    font-size: var(--font-size-sm, 0.875rem);
+    font-weight: var(--weight-medium, 500);
+    color: var(--color-accent);
+    text-decoration: none;
+    border-block-end: var(--border-width-thick, 2px) solid transparent;
+    transition: border-color var(--duration-fast, 150ms) var(--ease-standard, ease);
+  }
+
+  .awards__link:hover,
+  .awards__link:focus-visible {
+    border-block-end-color: var(--color-accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .awards__link {
+      transition: none;
+    }
+  }
+</style>

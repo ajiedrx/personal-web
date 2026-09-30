@@ -5,6 +5,7 @@
     "experience": "Pengalaman",
     "projects": "Proyek",
     "impact": "Dampak",
+    "awards": "Penghargaan",
     "education": "Pendidikan",
     "contact": "Kontak",
     "openMenu": "Buka menu navigasi",
@@ -29,8 +30,9 @@
     "categories": {
       "core-mobile": "Mobile Inti",
       "full-stack": "Full-Stack",
-      "modern-tech": "Teknologi Modern",
-      "quality": "Kualitas"
+      "modern-tech": "Selain Android",
+      "quality": "Kualitas",
+      "domain": "Keahlian Domain"
     }
   },
   "experience": {
@@ -54,6 +56,10 @@
       "teamsMentored": "Tim dibimbing sebagai Capstone Project Advisor",
       "engineersLed": "Engineer dipimpin sebagai Android Sprint Lead"
     }
+  },
+  "awards": {
+    "heading": "Penghargaan & Apresiasi",
+    "verifyLabel": "Lihat kredensial"
   },
   "education": {
     "heading": "Mentorship & Pendidikan",

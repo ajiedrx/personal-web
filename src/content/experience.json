@@ -5,7 +5,8 @@
     "startDate": "2026-03",
     "endDate": null,
     "highlights": [
-      "Owned features end to end across the Android app and the .NET Core Web API, reducing integration friction and speeding up deployments."
+      "Owned features end to end across the Android app and the .NET Core Web API, reducing integration friction and speeding up deployments.",
+      "Set a higher bar for the backend codebase by decoupling business logic from vendor-specific implementations behind abstractions, reducing vendor lock-in and improving testability and maintainability."
     ]
   },
   {
@@ -17,6 +18,7 @@
       "Modularized a monolith, cutting build times by up to 30%.",
       "Optimized performance with Coroutines, eliminating 99% of ANRs.",
       "Introduced a batch-processing strategy that eliminated 99% of Out Of Memory errors.",
+      "Extracted geolocation functionality into a reusable module shared across multiple apps, eliminating duplicated implementations.",
       "Wrote local unit tests and set up Azure Pipelines for CI."
     ]
   },
